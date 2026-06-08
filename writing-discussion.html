@@ -1,0 +1,69 @@
+/* =====================================================================
+   TOEFL Writing 添削講座 — 提出モジュール
+   答案を GAS（サーバー側）へ送信する。GAS が PDF を生成して
+   toefl-writing2026@tckworkshop.co.jp へメール送信する。
+   GitHub Pages の静的HTML単体ではメール送信できないため、この方式を使う
+   （既存の録音アップロードと同じ iframe-POST 方式）。
+   ▼▼ デプロイ後、下の URL を「自分のGASウェブアプリURL」に差し替える ▼▼
+   ===================================================================== */
+const SUBMIT_GAS_URL = 'PASTE_YOUR_DEPLOYED_GAS_WEB_APP_URL_HERE';
+
+const Submit = {
+  send: function(payload){
+    return new Promise(function(resolve){
+      if(!SUBMIT_GAS_URL || SUBMIT_GAS_URL.indexOf('PASTE_') === 0){
+        resolve({ success:false, notConfigured:true });
+        return;
+      }
+      var name = 'tckSubmit_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+      var iframe = document.createElement('iframe');
+      iframe.name = name; iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+      var form = document.createElement('form');
+      form.method = 'POST'; form.action = SUBMIT_GAS_URL; form.target = name;
+      form.acceptCharset = 'UTF-8'; form.style.display = 'none';
+      Object.keys(payload).forEach(function(k){
+        var inp = document.createElement('input');
+        inp.type = 'hidden'; inp.name = k;
+        inp.value = (payload[k] == null) ? '' : String(payload[k]);
+        form.appendChild(inp);
+      });
+      document.body.appendChild(form);
+      var done = false;
+      function cleanup(r){
+        if(done) return; done = true;
+        setTimeout(function(){ try{ form.remove(); iframe.remove(); }catch(e){} }, 300);
+        resolve(r);
+      }
+      iframe.onload = function(){ cleanup({ success:true }); };
+      setTimeout(function(){ cleanup({ success:true, timeout:true }); }, 30000);
+      form.submit();
+    });
+  },
+
+  /* localStorage に保存された 1 セット分の答案を組み立てて返す */
+  collectPayload: function(setNumber){
+    var user = {};
+    try { user = JSON.parse(localStorage.getItem('toefl_user') || '{}') || {}; } catch(e){}
+    var k = 'course_set' + setNumber + '_';
+    var emailMeta = {}, adMeta = {};
+    try { emailMeta = JSON.parse(localStorage.getItem(k + 'email_meta') || '{}'); } catch(e){}
+    try { adMeta = JSON.parse(localStorage.getItem(k + 'ad_meta') || '{}'); } catch(e){}
+    return {
+      action:     'submitWriting',
+      userName:   user.name || user.userName || '',
+      userId:     user.id || user.userId || '',
+      userEmail:  user.email || '',
+      setNumber:  String(setNumber),
+      basCorrect: localStorage.getItem(k + 'sentence_correct') || '0',
+      basTotal:   localStorage.getItem(k + 'sentence_total') || '10',
+      emailSubject: emailMeta.subject || '',
+      emailScenario: emailMeta.scenario || '',
+      emailAnswer:  localStorage.getItem(k + 'email_response') || '',
+      adField:    adMeta.field || '',
+      adPrompt:   adMeta.profPost || '',
+      adAnswer:   localStorage.getItem(k + 'ad_response') || '',
+      timestamp:  new Date().toISOString()
+    };
+  }
+};
