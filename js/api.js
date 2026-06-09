@@ -10,8 +10,8 @@
  *                         してはいけない — script タグ注入で読む。
  */
 
-// PT 自前の GAS — ログイン用 (JSON で返す)
-const API_URL = 'https://script.google.com/macros/s/AKfycbwylm042co9aSzwlQG_nV8ZxyMEFtr0VGhL5i6hqHXoLLfNA8YJOLrpJriw0NdTWvZG2Q/exec';
+// 受講者ログイン用 GAS (JSON 応答) — ライティング添削講座専用
+const API_URL = 'https://script.google.com/macros/s/AKfycbx9ohGwz8pz-tmrvthxWTy5zoEwvq77WonVlivFwQB48bq_VVkiRemmERE41y9PRKeg6w/exec';
 
 // Task Training の GAS — 録音アップロード + PT 結果保存用 (JSONP で返す)
 const REC_URL = 'https://script.google.com/macros/s/AKfycbwjI8n86Cu1ar1IsPffyq9mboDrUNpG-SsVpFtURjP6AmCFHD3Zbw5_qcJJUksz_UDyyw/exec';
