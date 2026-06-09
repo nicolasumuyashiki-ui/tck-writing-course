@@ -36,7 +36,7 @@ const Submit = {
         resolve(r);
       }
       iframe.onload = function(){ cleanup({ success:true }); };
-      setTimeout(function(){ cleanup({ success:true, timeout:true }); }, 30000);
+      setTimeout(function(){ cleanup({ success:false, timeout:true }); }, 30000);
       form.submit();
     });
   },
