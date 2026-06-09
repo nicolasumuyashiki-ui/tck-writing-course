@@ -23,6 +23,12 @@ const API = {
     return res.json();
   },
 
+  async getUser(id) {
+    const url = `${API_URL}?action=getUser&id=${encodeURIComponent(id)}`;
+    const res = await fetch(url, { redirect: 'follow' });
+    return res.json();
+  },
+
   async getQuestions(section) {
     const url = `${API_URL}?action=getQuestions&section=${encodeURIComponent(section)}`;
     const res = await fetch(url, { redirect: 'follow' });

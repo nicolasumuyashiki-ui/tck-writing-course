@@ -32,8 +32,14 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
 .set-card .theme{font-size:13px;color:#5A6861;}
 .set-card .tasks{font-size:12px;color:#5A6861;margin-top:6px;}
 .set-card .badge{align-self:flex-start;margin-top:8px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;background:#e8f5ee;color:#007646;}
+.upgrade-card{margin-top:28px;background:#fff;border:1px dashed #C9A961;border-radius:12px;padding:22px 24px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.upgrade-card .label{font-size:11px;font-weight:800;color:#C9A961;letter-spacing:.14em;text-transform:uppercase;}
+.upgrade-card h3{font-size:17px;color:#002817;}
+.upgrade-card p{font-size:13px;color:#5A6861;line-height:1.7;}
+.upgrade-card .btn{align-self:flex-start;margin-top:4px;background:#007646;color:#fff;font-weight:700;font-size:14px;padding:11px 22px;border-radius:999px;text-decoration:none;transition:all .15s;}
+.upgrade-card .btn:hover{background:#004D2E;box-shadow:0 6px 18px rgba(0,118,70,.22);transform:translateY(-1px);}
 .ets-disclaimer{font-size:11px;color:#8a8f8c;line-height:1.6;text-align:center;padding:12px 16px;}
-.foot{margin-top:32px;font-size:12px;color:#5A6861;line-height:1.7;}
+.foot{margin-top:24px;font-size:12px;color:#5A6861;line-height:1.7;}
 </style>
 <!-- Start of HubSpot Embed Code --><script type="text/javascript" id="hs-script-loader" async defer src="//js-na2.hs-scripts.com/242729130.js"></script><!-- End of HubSpot Embed Code -->
 </head>
@@ -57,35 +63,80 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
     </div>
   </div>
   <div class="grid" id="setGrid"></div>
-  <div class="foot">
-    ※ このページに表示するセット数は <code>PLAN_SETS</code> で切り替えられます（4 / 8 / 12 プラン）。<br>
-    各セットの答案はブラウザに一時保存され、提出時にPDF化して送信されます。
-  </div>
+  <div id="upgradeSlot"></div>
+  <div class="foot">各セットの答案はブラウザに一時保存され、提出時にPDF化して送信されます。</div>
   <div class="ets-disclaimer">TOEFL and TOEFL iBT are registered trademarks of ETS. This product is not endorsed or approved by ETS.<br>TOEFL および TOEFL iBT は ETS の登録商標です。本教材は ETS の承認・推奨を受けたものではありません。</div>
 </div>
 
+<script src="js/api.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/bas-sets.js"></script>
 <script>
-if(typeof Auth!=='undefined'){Auth.require();Auth.showBadge('userBadge');}
+const STRIPE_URL_5_8  = 'https://buy.stripe.com/7sY8wP9ybbv69NO8Zn1kA1W';
+const STRIPE_URL_9_12 = 'https://buy.stripe.com/7sY8wP5hVcza1hib7v1kA1V';
+const ALLOWED_PLANS = [4, 8, 12];
 
-/* ▼▼ プランに応じて 4 / 8 / 12 に変更（これだけで出し分け可能） ▼▼ */
-const PLAN_SETS = 12;
+const user = Auth.require();
+Auth.showBadge('userBadge');
 
-const grid=document.getElementById('setGrid');
-const n=Math.min(PLAN_SETS, BAS_SETS.length);
-for(let i=1;i<=n;i++){
-  const theme=(BAS_SETS[i-1] && BAS_SETS[i-1].theme) ? BAS_SETS[i-1].theme : '';
-  const submitted=!!localStorage.getItem('course_set'+i+'_ad_response');
-  const a=document.createElement('a');
-  a.className='set-card';
-  a.href='writing-sentence.html?set='+i;
-  a.innerHTML='<span class="num">Set '+i+'</span>'+
-    '<span class="title">Practice Set '+i+'</span>'+
-    '<span class="theme">'+theme+'</span>'+
-    '<span class="tasks">Build a Sentence → Email → Academic Discussion</span>'+
-    (submitted?'<span class="badge">提出済み</span>':'');
-  grid.appendChild(a);
+function normalizePlan(v){
+  const n = Number(v);
+  return ALLOWED_PLANS.indexOf(n) >= 0 ? n : 4;
+}
+
+function render(plan){
+  const grid = document.getElementById('setGrid');
+  grid.innerHTML = '';
+  const n = Math.min(plan, BAS_SETS.length);
+  for (let i = 1; i <= n; i++){
+    const theme = (BAS_SETS[i-1] && BAS_SETS[i-1].theme) ? BAS_SETS[i-1].theme : '';
+    const submitted = !!localStorage.getItem('course_set'+i+'_ad_response');
+    const a = document.createElement('a');
+    a.className = 'set-card';
+    a.href = 'writing-sentence.html?set='+i;
+    a.innerHTML = '<span class="num">Set '+i+'</span>'+
+      '<span class="title">Practice Set '+i+'</span>'+
+      '<span class="theme">'+theme+'</span>'+
+      '<span class="tasks">Build a Sentence → Email → Academic Discussion</span>'+
+      (submitted ? '<span class="badge">提出済み</span>' : '');
+    grid.appendChild(a);
+  }
+  renderUpgrade(plan);
+}
+
+function renderUpgrade(plan){
+  const slot = document.getElementById('upgradeSlot');
+  slot.innerHTML = '';
+  let nextRange = null, url = null;
+  if (plan === 4)      { nextRange = 'No.5〜8';  url = STRIPE_URL_5_8;  }
+  else if (plan === 8) { nextRange = 'No.9〜12'; url = STRIPE_URL_9_12; }
+  if (!nextRange) return;  // plan 12 はゴール
+
+  const card = document.createElement('div');
+  card.className = 'upgrade-card';
+  card.innerHTML =
+    '<span class="label">Add Practice Sets</span>'+
+    '<h3>課題を追加する（'+nextRange+'）</h3>'+
+    '<p>現在のプランで利用できる課題は Set 1〜'+plan+' です。さらに 4 セットを追加すると、'+
+      '次の Set '+(plan+1)+'〜'+(plan+4)+' が解放されます。<br>'+
+      '購入後、シートが更新されるとこのページを開き直すだけで自動的に反映されます。</p>'+
+    '<a class="btn" href="'+url+'" target="_blank" rel="noopener">'+nextRange+' を追加購入する</a>';
+  slot.appendChild(card);
+}
+
+/* 初期描画：localStorage に保存済みの plan ですぐ描画 */
+render(normalizePlan(user.plan));
+
+/* 同期：サーバーの最新 plan を取りに行き、変わっていたら再描画 */
+if (API && API.getUser){
+  API.getUser(user.id).then(function(r){
+    if (!r || !r.success) return;
+    const fresh = normalizePlan(r.plan);
+    if (fresh !== normalizePlan(user.plan)){
+      Auth.save(Object.assign({}, user, { plan: fresh }));
+      render(fresh);
+    }
+  }).catch(function(){ /* オフライン等は無視。直前の plan のまま */ });
 }
 </script>
 <script defer src="../js/tm-footer.js"></script>
