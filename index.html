@@ -130,7 +130,7 @@ body{justify-content:flex-start}
     try {
       const result = await API.login(uid, pass);
       if(result.success){
-        Auth.save({ id: result.userId, name: result.userName });
+        Auth.save({ id: result.userId, name: result.userName, plan: Number(result.plan) || 4 });
         location.href = 'course-home.html';
       } else {
         err.classList.add('show');
