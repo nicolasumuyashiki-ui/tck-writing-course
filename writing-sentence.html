@@ -147,7 +147,8 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
 <script src="js/auth.js"></script>
 <script src="js/bas-sets.js"></script>
 <script>
-if(typeof Auth!=='undefined'){Auth.require();Auth.showBadge('userBadge');}
+var __user = (typeof Auth !== 'undefined') ? Auth.require() : null;
+if (__user) Auth.showBadge('userBadge');
 
 /* ---- which set? read ?set=N from the URL (default 1) ---- */
 function getSetNumber(){
@@ -158,6 +159,7 @@ function getSetNumber(){
   return n;
 }
 const SET_NUMBER=getSetNumber();
+if (__user && SET_NUMBER > (Number(__user.plan) || 4)) { location.href = 'course-home.html'; }
 const SET_DATA=BAS_SETS[SET_NUMBER-1];
 document.getElementById('taskLabel').textContent='Build a Sentence · Set '+SET_NUMBER;
 

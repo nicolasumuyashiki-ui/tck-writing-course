@@ -189,10 +189,12 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
 <script src="js/ad-sets.js"></script>
 <script src="js/submit.js"></script>
 <script>
-if(typeof Auth!=='undefined'){Auth.require();Auth.showBadge('userBadge');}
+var __user = (typeof Auth !== 'undefined') ? Auth.require() : null;
+if (__user) Auth.showBadge('userBadge');
 
 function getSetNumber(){var p=new URLSearchParams(location.search);var n=parseInt(p.get('set'),10);if(isNaN(n)||n<1)n=1;if(n>AD_SETS.length)n=AD_SETS.length;return n;}
 const SET_NUMBER=getSetNumber();
+if (__user && SET_NUMBER > (Number(__user.plan) || 4)) { location.href = 'course-home.html'; }
 const DATA=AD_SETS[SET_NUMBER-1];
 document.getElementById('taskLabel').textContent='Academic Discussion · Set '+SET_NUMBER;
 document.getElementById('setNumLabel').textContent=SET_NUMBER;
@@ -264,16 +266,25 @@ function submitSet(){
   const res=document.getElementById('submitResult');
   btn.disabled=true;btn.textContent='送信中...';
   const payload=Submit.collectPayload(SET_NUMBER);
+  function fail(html){
+    res.className='submit-result warn';
+    res.innerHTML=html;
+    btn.disabled=false;btn.textContent='もう一度送信する';
+  }
   Submit.send(payload).then(function(r){
     if(r.notConfigured){
-      res.className='submit-result warn';
-      res.innerHTML='⚠️ 送信先（GAS）が未設定です。<br>js/submit.js の <code>SUBMIT_GAS_URL</code> にデプロイ済みGASのURLを設定してください。（答案はブラウザに保存済みです）';
-      btn.disabled=false;btn.textContent='提出する（添削に出す）';
+      fail('⚠️ 送信先（GAS）が未設定です。<br>js/submit.js の <code>SUBMIT_GAS_URL</code> にデプロイ済みGASのURLを設定してください。（答案はブラウザに保存済みです）');
+      return;
+    }
+    if(r.timeout || !r.success){
+      fail('⚠️ サーバーに届かなかった可能性があります（タイムアウト）。<br>答案はブラウザに保存済みです。通信環境を確認のうえ、もう一度お試しください。');
       return;
     }
     res.className='submit-result ok';
     res.innerHTML='✅ 提出が完了しました。<br>3営業日以内に、添削とバンドスコア（1.0〜6.0）をつけて返却します。';
     btn.textContent='提出済み';
+  }).catch(function(e){
+    fail('⚠️ 送信中にエラーが発生しました：'+(e && e.message ? e.message : String(e))+'<br>答案はブラウザに保存済みです。再度お試しください。');
   });
 }
 </script>
