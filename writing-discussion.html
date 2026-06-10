@@ -280,8 +280,9 @@ function submitSet(){
       fail('⚠️ サーバーに届かなかった可能性があります（タイムアウト）。<br>答案はブラウザに保存済みです。通信環境を確認のうえ、もう一度お試しください。');
       return;
     }
+    const ts = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
     res.className='submit-result ok';
-    res.innerHTML='✅ 提出が完了しました。<br>3営業日以内に、添削とバンドスコア（1.0〜6.0）をつけて返却します。';
+    res.innerHTML='✅ Set '+SET_NUMBER+' を '+ts+' に送信しました。<br>3営業日以内に、添削とバンドスコア（1.0〜6.0）をつけて返却します。';
     btn.textContent='提出済み';
   }).catch(function(e){
     fail('⚠️ 送信中にエラーが発生しました：'+(e && e.message ? e.message : String(e))+'<br>答案はブラウザに保存済みです。再度お試しください。');
