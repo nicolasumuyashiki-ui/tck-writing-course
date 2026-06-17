@@ -1,24 +1,15 @@
 /**
  * セッション管理 (localStorage)
- *  - ログイン状態は localStorage に保存され、30 日経過すると自動失効する
+ *  - ログイン状態は localStorage に保存され、明示的にログアウトされるまで永続
  *  - ログアウトボタンは showBadge() がバッジ内に同梱して描画する
  */
-const SESSION_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
-
 const Auth = {
   save(user) {
-    const record = Object.assign({}, user, { savedAt: Date.now() });
-    localStorage.setItem('toefl_user', JSON.stringify(record));
+    localStorage.setItem('toefl_user', JSON.stringify(user));
   },
   get() {
     try {
-      const raw = JSON.parse(localStorage.getItem('toefl_user'));
-      if (!raw) return null;
-      if (raw.savedAt && (Date.now() - raw.savedAt) > SESSION_MAX_AGE_MS) {
-        localStorage.removeItem('toefl_user');
-        return null;
-      }
-      return raw;
+      return JSON.parse(localStorage.getItem('toefl_user'));
     } catch { return null; }
   },
   clear() {
