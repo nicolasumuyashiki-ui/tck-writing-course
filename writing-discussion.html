@@ -273,7 +273,7 @@ function submitSet(){
   }
   Submit.send(payload).then(function(r){
     if(r.notConfigured){
-      fail('⚠️ 送信先（GAS）が未設定です。<br>js/submit.js の <code>SUBMIT_GAS_URL</code> にデプロイ済みGASのURLを設定してください。（答案はブラウザに保存済みです）');
+      fail('⚠️ 提出機能の設定に問題があります。お手数ですが TCK Workshop までお問い合わせください。<br>答案はブラウザに保存されています。');
       return;
     }
     if(r.timeout || !r.success){
