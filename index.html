@@ -120,7 +120,7 @@ body{justify-content:flex-start}
       <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
         <h2 id="resetTitle">ID／パスワード再発行のご案内</h2>
         <p>受講者ID、またはパスワードをお忘れの場合は、下記アドレスまでメールでご連絡ください。お申込み時のお名前・ご登録メールアドレスをお書き添えのうえご連絡いただけますと、担当より再発行のご案内をお送りいたします。</p>
-        <div class="modal-email">toefl-writing2026@tckworkshop.co.jp</div>
+        <div class="modal-email">writing2026@tckworkshop.co.jp</div>
         <div class="modal-actions">
           <button type="button" class="modal-btn cancel" onclick="closeResetModal()">閉じる</button>
           <button type="button" class="modal-btn primary" onclick="openMailClient()">メールを作成する</button>
@@ -143,7 +143,7 @@ body{justify-content:flex-start}
   function openResetModal(){ document.getElementById('resetModal').classList.add('show'); }
   function closeResetModal(){ document.getElementById('resetModal').classList.remove('show'); }
   function openMailClient(){
-    const to = 'toefl-writing2026@tckworkshop.co.jp';
+    const to = 'writing2026@tckworkshop.co.jp';
     const subject = '【ライティング添削コース】ID／パスワード再発行のお願い';
     const body = 'TCK Workshop ライティング添削コース 担当者様\n\nID（またはパスワード）を失念してしまったため、再発行をお願いいたします。\n\n■ お名前（フルネーム）:\n■ ご登録メールアドレス:\n■ お申込み時期（おおよそで結構です）:\n■ ご状況の補足（任意）:\n\nご対応のほど、よろしくお願いいたします。';
     location.href = 'mailto:' + encodeURIComponent(to) + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
