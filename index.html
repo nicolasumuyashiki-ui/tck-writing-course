@@ -58,6 +58,20 @@ body{justify-content:flex-start}
 @keyframes spin{to{transform:rotate(360deg)}}
 .login-tm{padding:14px 28px 10px;text-align:center;font-size:11px;color:#8a8f8c;line-height:1.6;font-family:var(--font-jp)}
 .login-footer{border-top:1px solid var(--paper);padding:12px 28px 14px;text-align:center;font-size:.78em;color:var(--ink-500);font-family:var(--font-jp);letter-spacing:.02em}
+.forgot-link{display:block;width:100%;margin-top:14px;text-align:center;background:none;border:none;font-family:var(--font-jp);font-size:.82em;color:var(--green);text-decoration:underline;cursor:pointer;padding:4px}
+.forgot-link:hover{color:var(--green-dark)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,40,23,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
+.modal-overlay.show{display:flex}
+.modal-card{background:#fff;border-radius:14px;max-width:420px;width:100%;padding:24px 24px 20px;box-shadow:0 12px 40px rgba(0,40,23,.25);font-family:var(--font-jp)}
+.modal-card h2{font-size:1.15em;font-weight:700;color:var(--green-deep);margin-bottom:10px}
+.modal-card p{font-size:.88em;color:var(--ink-500);line-height:1.7;margin-bottom:14px}
+.modal-card .modal-email{font-family:var(--font-en);background:#FBF6EC;border:1px solid var(--paper);border-radius:8px;padding:10px 12px;font-size:.85em;color:var(--ink-900);word-break:break-all;text-align:center;margin-bottom:16px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end}
+.modal-btn{padding:10px 18px;font-family:var(--font-jp);font-size:.9em;font-weight:700;border-radius:999px;cursor:pointer;border:none;letter-spacing:.04em}
+.modal-btn.cancel{background:var(--paper);color:var(--ink-500)}
+.modal-btn.cancel:hover{background:#ead9be}
+.modal-btn.primary{background:var(--green);color:#fff}
+.modal-btn.primary:hover{background:var(--green-dark)}
 </style>
 <!-- Start of HubSpot Embed Code --><script type="text/javascript" id="hs-script-loader" async defer src="//js-na2.hs-scripts.com/242729130.js"></script><!-- End of HubSpot Embed Code -->
 </head>
@@ -99,6 +113,19 @@ body{justify-content:flex-start}
       <button class="btn-login" id="loginBtn" onclick="doLogin()">
         <span id="loginBtnText">ログイン</span>
       </button>
+      <button type="button" class="forgot-link" onclick="openResetModal()">ID／パスワードをお忘れの方はこちら</button>
+    </div>
+
+    <div class="modal-overlay" id="resetModal" onclick="if(event.target===this)closeResetModal()">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
+        <h2 id="resetTitle">ID／パスワード再発行のご案内</h2>
+        <p>受講者ID、またはパスワードをお忘れの場合は、下記アドレスまでメールでご連絡ください。お申込み時のお名前・ご登録メールアドレスをお書き添えのうえご連絡いただけますと、担当より再発行のご案内をお送りいたします。</p>
+        <div class="modal-email">toefl-writing2026@tckworkshop.co.jp</div>
+        <div class="modal-actions">
+          <button type="button" class="modal-btn cancel" onclick="closeResetModal()">閉じる</button>
+          <button type="button" class="modal-btn primary" onclick="openMailClient()">メールを作成する</button>
+        </div>
+      </div>
     </div>
     <div class="login-tm">TOEFL および TOEFL iBT は ETS の登録商標です。本教材は ETS の承認・推奨を受けたものではありません。<br>TOEFL and TOEFL iBT are registered trademarks of ETS. This product is not endorsed or approved by ETS.</div>
     <div class="login-footer">TCK Workshop ライティング添削コース</div>
@@ -112,6 +139,16 @@ body{justify-content:flex-start}
 
   document.getElementById('password').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
   document.getElementById('userId').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('password').focus(); });
+
+  function openResetModal(){ document.getElementById('resetModal').classList.add('show'); }
+  function closeResetModal(){ document.getElementById('resetModal').classList.remove('show'); }
+  function openMailClient(){
+    const to = 'toefl-writing2026@tckworkshop.co.jp';
+    const subject = '【ライティング添削コース】ID／パスワード再発行のお願い';
+    const body = 'TCK Workshop ライティング添削コース 担当者様\n\nID（またはパスワード）を失念してしまったため、再発行をお願いいたします。\n\n■ お名前（フルネーム）:\n■ ご登録メールアドレス:\n■ お申込み時期（おおよそで結構です）:\n■ ご状況の補足（任意）:\n\nご対応のほど、よろしくお願いいたします。';
+    location.href = 'mailto:' + encodeURIComponent(to) + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  }
+  document.addEventListener('keydown', e => { if(e.key==='Escape') closeResetModal(); });
 
   async function doLogin(){
     const uid  = document.getElementById('userId').value.trim();
