@@ -225,7 +225,7 @@ function renderQ(idx){
   html+='<div class="word-bank" id="wordBank">';
   wb.forEach(w=>{
     const used=ua.includes(w);
-    html+='<div class="word-item'+(used?' used':'')+'" draggable="true" ondragstart="dragWord(event,\''+w.replace(/'/g,"\\'")+'\')" data-word="'+w+'">'+w+'</div>';
+    html+='<div class="word-item'+(used?' used':'')+'" draggable="true" ondragstart="dragWord(event,\''+w.replace(/'/g,"\\'")+'\')" onclick="bankTapped(\''+w.replace(/'/g,"\\'")+'\')" data-word="'+w+'">'+w+'</div>';
   });
   html+='</div>';
   document.getElementById('quizCard').innerHTML=html;
@@ -247,6 +247,15 @@ function dropWord(e,slotIdx){
 function returnWord(slotIdx){
   const ua=userAnswers[currentQ];
   if(ua[slotIdx]){ua[slotIdx]='';renderQ(currentQ);}
+}
+/* タップ配置（モバイル対応のフォールバック。デスクトップでもクリックで動作） */
+function bankTapped(word){
+  const q=questions[currentQ];
+  const ua=userAnswers[currentQ];
+  if(ua.includes(word)) return;
+  for(let i=0;i<q.blanks.length;i++){
+    if(!ua[i]){ua[i]=word;renderQ(currentQ);return;}
+  }
 }
 function navQ(dir){
   if(currentQ===questions.length-1 && dir===1){showModal();return;}
