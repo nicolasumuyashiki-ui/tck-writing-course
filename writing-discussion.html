@@ -69,6 +69,8 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
 .btn-submit{display:block;width:100%;margin-top:8px;padding:15px;background:#007646;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;}
 .btn-submit:hover{background:#004D2E;}
 .btn-submit:disabled{opacity:.5;cursor:not-allowed;}
+.btn-back-home{display:block;width:100%;margin-top:14px;padding:13px;background:transparent;color:#5A6861;border:1.5px solid #F5E9D3;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;text-decoration:none;text-align:center;transition:all .15s;}
+.btn-back-home:hover{background:#FBF6EC;border-color:#007646;color:#007646;}
 .submit-note{font-size:12px;color:#5A6861;margin-top:12px;line-height:1.6;}
 .submit-result{margin-top:18px;padding:16px;border-radius:8px;font-size:14px;line-height:1.7;display:none;}
 .submit-result.ok{background:#e8f5ee;border:1px solid #007646;color:#004D2E;display:block;}
@@ -180,6 +182,7 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
     <button class="btn-submit" id="btnSubmit" onclick="submitSet()">提出する（添削に出す）</button>
     <p class="submit-note">提出すると、Build a Sentence の自動採点結果と、Email・Academic Discussion の答案がまとめてPDF化され、TCK Workshop に送信されます。<strong>3営業日以内</strong>に、TOEFL公式Rubricに沿った添削とバンドスコア（1.0〜6.0）をつけて返却します。</p>
     <div class="submit-result" id="submitResult"></div>
+    <a href="course-home.html" class="btn-back-home">← メインメニューに戻る</a>
   </div>
 </div>
 
