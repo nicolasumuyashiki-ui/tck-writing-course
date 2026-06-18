@@ -65,10 +65,10 @@ const Auth = {
       const s = document.createElement('style');
       s.id = 'tck-badge-styles';
       s.textContent =
-        ".auth-logout-btn{display:inline-flex;align-items:center;gap:5px;margin-left:14px;padding:5px 12px 5px 10px;" +
-          "border:1px solid rgba(255,255,255,.35);border-radius:999px;color:inherit;text-decoration:none;" +
-          "font-size:.82em;font-weight:600;line-height:1;transition:all .15s;vertical-align:middle;white-space:nowrap}" +
-        ".auth-logout-btn svg{width:13px;height:13px;fill:currentColor;flex-shrink:0}" +
+        ".auth-logout-btn{display:inline-flex;align-items:center;gap:6px;margin-left:14px;padding:7px 14px 7px 12px;" +
+          "border:1px solid rgba(255,255,255,.4);border-radius:999px;color:inherit;text-decoration:none;" +
+          "font-size:.88em;font-weight:600;line-height:1;transition:all .15s;vertical-align:middle;white-space:nowrap;min-height:30px}" +
+        ".auth-logout-btn svg{width:14px;height:14px;fill:currentColor;flex-shrink:0}" +
         ".auth-logout-btn:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.7)}" +
         ".auth-logout-btn:focus-visible{outline:2px solid #C9A961;outline-offset:2px}";
       document.head.appendChild(s);
