@@ -1,7 +1,7 @@
 /* =====================================================================
    TOEFL Writing 添削講座 — 提出モジュール
    答案を GAS（サーバー側）へ送信する。GAS が PDF を生成して
-   toefl-writing2026@tckworkshop.co.jp へメール送信する。
+   writing2026@tckworkshop.co.jp へメール送信する。
    GitHub Pages の静的HTML単体ではメール送信できないため、この方式を使う
    （既存の録音アップロードと同じ iframe-POST 方式）。
    ▼▼ デプロイ後、下の URL を「自分のGASウェブアプリURL」に差し替える ▼▼
