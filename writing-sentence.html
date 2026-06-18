@@ -23,6 +23,8 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
 .finish-btn{padding:7px 18px;background:#007646;color:#fff;border:none;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;letter-spacing:.02em;}
 .finish-btn:hover{background:#004D2E;box-shadow:0 4px 12px rgba(0,118,70,.22);}
+.btn-back-nav{padding:7px 14px;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;}
+.btn-back-nav:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.6);}
 .user-badge{font-size:13px;color:#D6DAD7;}
 .user-badge strong{color:#fff;}
 .progress-bar{height:4px;background:#F5E9D3;flex-shrink:0;}
@@ -95,6 +97,7 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
   <div class="nav-left"><span class="section-label">Writing</span><span class="divider">|</span><span class="task-label" id="taskLabel">Build a Sentence</span></div>
   <div class="nav-right">
     <span class="timer-display" id="timer">06:00</span>
+    <button class="btn-back-nav" id="btnBack" onclick="showBackModal()" style="display:none">← メニュー</button>
     <button class="finish-btn" id="btnFinish" onclick="showModal()" style="display:none">Finish</button>
     <span class="user-badge" id="userBadge"></span>
   </div>
@@ -151,6 +154,30 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
   </div>
 </div>
 
+<div class="modal-overlay" id="backModal">
+  <div class="modal-content">
+    <div style="font-size:40px;margin-bottom:12px">⚠️</div>
+    <h3 style="font-size:18px;color:#002817;margin-bottom:8px">メニューに戻りますか？</h3>
+    <p style="font-size:14px;color:#5A6861;line-height:1.7;text-align:left">取り組み途中で中断するのは推奨されません。<br>戻る場合、現在の解答状態とタイマー（残り時間）は保存され、次に同じセットを開いたとき続きから再開できます。</p>
+    <div class="modal-buttons">
+      <button class="modal-btn cancel" onclick="hideBackModal()">続ける</button>
+      <button class="modal-btn confirm" onclick="confirmBack()">メニューに戻る</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="resumeModal">
+  <div class="modal-content">
+    <div style="font-size:40px;margin-bottom:12px">⏸</div>
+    <h3 style="font-size:18px;color:#002817;margin-bottom:8px">続きから再開しますか？</h3>
+    <p style="font-size:14px;color:#5A6861;line-height:1.7">前回の解答と残り時間（<strong id="resumeRemainingTime"></strong>）が保存されています。</p>
+    <div class="modal-buttons">
+      <button class="modal-btn cancel" onclick="restartFresh()">最初からやり直す</button>
+      <button class="modal-btn confirm" onclick="resumeFromSaved()">続きから再開</button>
+    </div>
+  </div>
+</div>
+
 <script src="js/auth.js"></script>
 <script src="js/bas-sets.js"></script>
 <script>
@@ -191,16 +218,65 @@ let currentQ=0,userAnswers=[],bankOrders=[],timerInterval=null,secondsLeft=360,i
 const totalTime=360;
 questions.forEach(()=>{userAnswers.push([]);bankOrders.push(null);});
 
+const RESUME_KEY = 'course_set'+SET_NUMBER+'_bas_resume';
+
+function saveResume(){
+  if(!isActive) return;
+  try {
+    localStorage.setItem(RESUME_KEY, JSON.stringify({
+      secondsLeft: secondsLeft,
+      currentQ: currentQ,
+      userAnswers: userAnswers,
+      bankOrders: bankOrders,
+      savedAt: Date.now()
+    }));
+  } catch(e){}
+}
+function clearResume(){ localStorage.removeItem(RESUME_KEY); }
+function loadResume(){ try { return JSON.parse(localStorage.getItem(RESUME_KEY)); } catch { return null; } }
+
+function checkResume(){
+  const r = loadResume();
+  if (!r) return;
+  const m = Math.floor(r.secondsLeft/60), s = r.secondsLeft%60;
+  document.getElementById('resumeRemainingTime').textContent =
+    String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  document.getElementById('resumeModal').classList.add('active');
+}
+function resumeFromSaved(){
+  const r = loadResume();
+  if (!r) return;
+  document.getElementById('resumeModal').classList.remove('active');
+  secondsLeft = r.secondsLeft;
+  currentQ = r.currentQ || 0;
+  userAnswers = r.userAnswers || userAnswers;
+  bankOrders = r.bankOrders || bankOrders;
+  document.getElementById('instrPage').style.display='none';
+  document.getElementById('quizPage').style.display='block';
+  document.getElementById('btnFinish').style.display='inline-block';
+  document.getElementById('btnBack').style.display='inline-block';
+  isActive=true; renderQ(currentQ); startTimer();
+}
+function restartFresh(){
+  clearResume();
+  document.getElementById('resumeModal').classList.remove('active');
+}
+function showBackModal(){ document.getElementById('backModal').classList.add('active'); }
+function hideBackModal(){ document.getElementById('backModal').classList.remove('active'); }
+function confirmBack(){ saveResume(); location.href='course-home.html'; }
+
 function startQuiz(){
   document.getElementById('instrPage').style.display='none';
   document.getElementById('quizPage').style.display='block';
   document.getElementById('btnFinish').style.display='inline-block';
+  document.getElementById('btnBack').style.display='inline-block';
   isActive=true;renderQ(0);startTimer();
 }
 function startTimer(){
   updateTimer();
   timerInterval=setInterval(()=>{
     secondsLeft--;updateTimer();
+    saveResume();
     document.getElementById('progressFill').style.width=((totalTime-secondsLeft)/totalTime*100)+'%';
     if(secondsLeft<=60)document.getElementById('timer').classList.add('warning');
     if(secondsLeft<=0){clearInterval(timerInterval);finishQuiz();}
@@ -249,11 +325,11 @@ function dropWord(e,slotIdx){
   for(let i=0;i<ua.length;i++){if(ua[i]===word)ua[i]='';}
   ua[slotIdx]=word;
   while(ua.length<q.blanks.length) ua.push('');
-  renderQ(currentQ);
+  renderQ(currentQ); saveResume();
 }
 function returnWord(slotIdx){
   const ua=userAnswers[currentQ];
-  if(ua[slotIdx]){ua[slotIdx]='';renderQ(currentQ);}
+  if(ua[slotIdx]){ua[slotIdx]='';renderQ(currentQ);saveResume();}
 }
 /* タップ配置（モバイル対応のフォールバック。デスクトップでもクリックで動作） */
 function bankTapped(word){
@@ -261,21 +337,25 @@ function bankTapped(word){
   const ua=userAnswers[currentQ];
   if(ua.includes(word)) return;
   for(let i=0;i<q.blanks.length;i++){
-    if(!ua[i]){ua[i]=word;renderQ(currentQ);return;}
+    if(!ua[i]){ua[i]=word;renderQ(currentQ);saveResume();return;}
   }
 }
 function navQ(dir){
   if(currentQ===questions.length-1 && dir===1){showModal();return;}
   const next=currentQ+dir;
-  if(next>=0 && next<questions.length) renderQ(next);
+  if(next>=0 && next<questions.length){renderQ(next);saveResume();}
 }
 function showModal(){document.getElementById('modalOverlay').classList.add('active');}
 function hideModal(){document.getElementById('modalOverlay').classList.remove('active');}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')hideModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){hideModal();hideBackModal();}});
+document.addEventListener('visibilitychange', () => { if (document.hidden) saveResume(); });
+window.addEventListener('pagehide', () => saveResume());
+checkResume();
 
 function finishQuiz(){
   if(!isActive)return;
   isActive=false;clearInterval(timerInterval);hideModal();
+  clearResume();
   let correct=0;
   questions.forEach((q,i)=>{
     const ua=userAnswers[i];
