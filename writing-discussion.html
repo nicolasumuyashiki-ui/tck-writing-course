@@ -370,6 +370,7 @@ function submitSet(){
       return;
     }
     const ts = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+    localStorage.setItem('course_set'+SET_NUMBER+'_submitted','true');
     res.className='submit-result ok';
     res.innerHTML='✅ Set '+SET_NUMBER+' を '+ts+' に送信しました。<br>3営業日以内に、添削とバンドスコア（1.0〜6.0）をつけて返却します。';
     btn.textContent='提出済み';
