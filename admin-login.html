@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="shortcut icon" href="assets/favicon.ico">
+<title>管理者ログイン — TCK Workshop ライティング添削コース</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/common.css">
+<style>
+body{justify-content:flex-start}
+.top-bar{display:flex}
+.logo-mark{display:inline-flex;align-items:center;gap:8px}
+.header-divider{width:1px;height:16px;background:var(--ink-200);margin:0 12px}
+.header-title{font-size:.88em;color:var(--ink-500);font-weight:500}
+.login-card{background:var(--white);border:1px solid var(--paper);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,40,23,.08);width:100%;max-width:440px;overflow:hidden;margin:24px auto}
+.login-header{background:linear-gradient(135deg,var(--green-deep),var(--green-dark));padding:28px 28px 22px;text-align:center;color:#fff;position:relative;overflow:hidden}
+.login-header::before{content:"";position:absolute;top:0;right:0;width:160px;height:100%;background:radial-gradient(circle at top right, rgba(201,169,97,.18), transparent 70%);pointer-events:none}
+.login-header .brand-logo{height:44px;margin-bottom:14px;position:relative;z-index:1}
+.login-header .kicker{font-family:var(--font-jp);font-size:.74em;font-weight:700;letter-spacing:.04em;color:var(--gold);margin-bottom:8px;position:relative;z-index:1}
+.login-header h1{font-family:var(--font-jp);font-size:1.4em;font-weight:700;letter-spacing:.02em;margin-bottom:4px;position:relative;z-index:1}
+.login-header p{font-size:.84em;color:rgba(255,255,255,.78);position:relative;z-index:1;font-family:var(--font-jp);line-height:1.6}
+.login-body{padding:32px 28px 24px;text-align:center}
+.login-body .note{font-size:.85em;color:var(--ink-500);line-height:1.7;margin-bottom:22px;font-family:var(--font-jp)}
+.gsi-wrap{display:flex;justify-content:center;margin:8px 0 4px}
+.error-msg{background:#FDF4F0;border:1px solid #E5B8A0;border-left:4px solid var(--terracotta);color:#8A3E24;border-radius:10px;padding:10px 14px;font-size:.85em;margin-bottom:16px;text-align:left;font-family:var(--font-jp);display:none}
+.error-msg.show{display:block}
+.config-warn{background:#FDF7E8;border:1px solid #E0C685;border-left:4px solid var(--gold);color:#8A6D2A;border-radius:10px;padding:10px 14px;font-size:.82em;margin-bottom:16px;text-align:left;font-family:var(--font-jp);line-height:1.6;display:none}
+.config-warn.show{display:block}
+.back-link{display:block;margin-top:18px;font-size:.82em;color:var(--ink-500);text-decoration:underline;font-family:var(--font-jp)}
+.back-link:hover{color:var(--green)}
+.login-footer{border-top:1px solid var(--paper);padding:12px 28px 14px;text-align:center;font-size:.78em;color:var(--ink-500);font-family:var(--font-jp);letter-spacing:.02em}
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <div class="logo-mark">
+    <img class="brand-logo" src="assets/tck-logo.png" alt="TCK Workshop" style="height:28px;width:auto">
+    <span class="header-divider"></span>
+    <span class="header-title">管理者ログイン</span>
+  </div>
+</div>
+<div class="main">
+  <div class="login-card">
+    <div class="login-header">
+      <img class="brand-logo" src="assets/tck-logo.png" alt="TCK Workshop">
+      <div class="kicker">INTERNAL — STAFF ONLY</div>
+      <h1>管理者ログイン</h1>
+      <p>採点・バンドスコア計算ツール<br><strong>@tckworkshop.co.jp</strong> アカウント専用</p>
+    </div>
+    <div class="login-body">
+      <div class="config-warn" id="cfgWarn">
+        ⚠️ Google OAuth Client ID が未設定です。<br>
+        運営者の方は <code>js/admin-auth.js</code> の <code>CLIENT_ID</code> を設定してください。
+      </div>
+      <div class="error-msg" id="errMsg"></div>
+      <p class="note">Google アカウントでサインインしてください。<br><code>@tckworkshop.co.jp</code> のアカウントのみログインできます。</p>
+
+      <div id="g_id_onload"
+           data-callback="handleAdminCredential"
+           data-hd="tckworkshop.co.jp"
+           data-auto_prompt="false"
+           data-context="signin"
+           data-itp_support="true"
+           data-ux_mode="popup"></div>
+      <div class="gsi-wrap">
+        <div class="g_id_signin"
+             data-type="standard"
+             data-shape="rectangular"
+             data-theme="filled_blue"
+             data-text="signin_with"
+             data-size="large"
+             data-locale="ja"
+             data-logo_alignment="left"></div>
+      </div>
+
+      <a href="index.html" class="back-link">← 受講者ログインへ戻る</a>
+    </div>
+    <div class="login-footer">TCK Workshop ライティング添削コース — 管理者用</div>
+  </div>
+</div>
+
+<script src="js/admin-auth.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+  // 既に管理者セッションがあるなら直接 admin へ
+  if (ADMIN_AUTH.get()) location.href = 'admin.html';
+
+  // CLIENT_ID 未設定なら警告を出す（Google のスクリプトもエラーになる）
+  if (!ADMIN_AUTH.CLIENT_ID || ADMIN_AUTH.CLIENT_ID.indexOf('PASTE_') === 0) {
+    document.getElementById('cfgWarn').classList.add('show');
+  } else {
+    document.getElementById('g_id_onload').setAttribute('data-client_id', ADMIN_AUTH.CLIENT_ID);
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errMsg');
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+
+  // Google からのコールバック (window グローバル必須)
+  window.handleAdminCredential = function (response) {
+    const result = ADMIN_AUTH.acceptCredential(response.credential);
+    if (!result.ok) {
+      let msg = 'ログインに失敗しました。';
+      if (result.reason === 'domain' || result.reason === 'email_domain') {
+        msg = '@tckworkshop.co.jp の Google アカウントでログインしてください。それ以外のアカウントでは入れません。';
+      } else if (result.reason === 'token_expired') {
+        msg = '認証トークンの有効期限が切れています。もう一度サインインしてください。';
+      } else if (result.reason === 'invalid_token') {
+        msg = '認証トークンが不正です。再度サインインしてください。';
+      }
+      showError(msg);
+      return;
+    }
+    location.href = 'admin.html';
+  };
+</script>
+<script defer src="../js/tm-footer.js"></script>
+</body>
+</html>

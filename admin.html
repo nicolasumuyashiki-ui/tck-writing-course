@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="shortcut icon" href="assets/favicon.ico">
+<title>採点バンドスコア計算 — TCK Workshop 管理者</title>
+<link rel="stylesheet" href="css/common.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-serif;background:#FBF6EC;min-height:100vh;color:#002817;}
+.top-nav{background:#002817;color:#fff;display:flex;justify-content:space-between;align-items:center;padding:10px 24px;font-size:14px;gap:8px;flex-wrap:wrap;}
+.nav-left{display:flex;align-items:center;gap:12px;min-width:0;}
+.nav-left .section-label{font-weight:700;font-size:15px;}
+.nav-left .divider{color:#5A6861;}
+.nav-left .task-label{color:#D6DAD7;}
+.nav-tag{background:#C9A961;color:#002817;font-size:10px;font-weight:800;padding:3px 8px;border-radius:999px;letter-spacing:.08em;}
+.admin-badge{display:flex;align-items:center;gap:10px;font-size:13px;color:#D6DAD7;}
+.admin-badge .name{color:#fff;font-weight:600;}
+.admin-badge img{width:22px;height:22px;border-radius:50%;}
+.admin-badge .btn-logout{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border:1px solid rgba(255,255,255,.35);border-radius:999px;color:inherit;text-decoration:none;font-size:.85em;font-weight:600;line-height:1;cursor:pointer;background:transparent;font-family:inherit;}
+.admin-badge .btn-logout:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.7);}
+.wrap{max-width:880px;margin:0 auto;padding:28px 16px 60px;}
+.intro h1{font-size:22px;font-weight:700;margin-bottom:4px;}
+.sub{font-size:13px;color:#5A6861;margin-bottom:22px;line-height:1.7;}
+.card{background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.06);padding:24px 26px;margin-bottom:18px;}
+.card h2{font-size:15px;font-weight:700;margin-bottom:4px;}
+.card .hint{font-size:12px;color:#5A6861;margin-bottom:16px;}
+.row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid #F5E9D3;}
+.row:last-child{border-bottom:none;}
+.row .label{font-size:14px;font-weight:600;}
+.row .label small{display:block;font-weight:400;color:#5A6861;font-size:12px;margin-top:2px;}
+.seg{display:flex;flex-wrap:wrap;gap:6px;}
+.seg button{border:1.5px solid #D6DAD7;background:#fff;color:#5A6861;font-family:inherit;font-size:13px;font-weight:600;padding:7px 12px;border-radius:8px;cursor:pointer;transition:all .12s;}
+.seg button:hover{border-color:#007646;}
+.seg button.active{background:#007646;border-color:#007646;color:#fff;}
+.num-input{width:84px;font-family:inherit;font-size:15px;font-weight:700;text-align:center;border:1.5px solid #D6DAD7;border-radius:8px;padding:8px;color:#002817;}
+.num-input:focus{outline:none;border-color:#007646;}
+.result{background:#002817;color:#fff;border-radius:12px;padding:28px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.result .breakdown{font-size:13px;line-height:1.9;}
+.result .breakdown span{color:#9FB3AA;}
+.result .breakdown b{color:#fff;}
+.band-box{text-align:center;flex:1;min-width:200px;}
+.band-box .band-num{font-size:64px;font-weight:800;line-height:1;color:#fff;}
+.band-box .band-of{font-size:18px;font-weight:600;color:#9FB3AA;}
+.band-box .band-desc{font-size:13px;color:#D6DAD7;margin-top:8px;}
+.formula{font-size:12px;color:#5A6861;background:#FDF7E8;border-left:4px solid #C9A961;padding:12px 16px;border-radius:4px;margin-top:14px;}
+.formula code{background:#fff;padding:1px 6px;border-radius:4px;font-size:11px;}
+.rubric{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:680px){.rubric{grid-template-columns:1fr;}.top-nav{padding:8px 16px;}.wrap{padding:18px 12px 40px;}}
+.rubric .rb{background:#FBF6EC;border:1px solid #F5E9D3;border-radius:10px;padding:16px;}
+.rubric .rb h3{font-size:13px;font-weight:700;color:#007646;margin-bottom:8px;}
+.rubric .rb table{width:100%;border-collapse:collapse;font-size:12px;}
+.rubric .rb td{padding:5px 4px;vertical-align:top;border-bottom:1px solid #ECE1CB;color:#5A6861;}
+.rubric .rb td:first-child{width:26px;font-weight:700;color:#002817;}
+.rubric .rb tr:last-child td{border-bottom:none;}
+.note{font-size:12px;color:#5A6861;margin-top:6px;}
+.copybtn{margin-top:16px;background:#007646;color:#fff;border:none;font-family:inherit;font-size:13px;font-weight:600;padding:10px 20px;border-radius:8px;cursor:pointer;}
+.copybtn:hover{background:#004D2E;}
+</style>
+</head>
+<body>
+<div class="top-nav">
+  <div class="nav-left">
+    <img class="brand-logo" src="assets/tck-logo.png" alt="TCK Workshop" style="height:28px;width:auto;margin-right:8px">
+    <span class="section-label">Admin</span>
+    <span class="divider">|</span>
+    <span class="task-label">採点バンドスコア計算</span>
+    <span class="nav-tag">INTERNAL</span>
+  </div>
+  <div class="admin-badge" id="adminBadge"></div>
+</div>
+
+<div class="wrap">
+  <div class="intro">
+    <h1>採点・バンドスコア計算ツール</h1>
+    <p class="sub">提出メールに添付された PDF を確認し、3 タスクの素点を入力すると、<strong>1.0〜6.0（0.5刻み）</strong>の合算バンドスコアを自動算出します。ETS 公式の 0〜5 タスクスコア／1〜6 セクションスコア体系に準拠。</p>
+  </div>
+
+  <div class="card">
+    <h2>① 各タスクの素点を入力</h2>
+    <p class="hint">Build a Sentence は自動採点（正答数）。Write an Email と Academic Discussion は下の Rubric に沿って 0〜5 を 0.5 刻みで入力。</p>
+
+    <div class="row">
+      <div class="label">Build a Sentence<small>自動採点：正答数（0〜10）</small></div>
+      <input class="num-input" id="basInput" type="number" min="0" max="10" step="1" value="0" oninput="calc()">
+    </div>
+
+    <div class="row">
+      <div class="label">Write an Email<small>Rubric 0〜5</small></div>
+      <div class="seg" id="emailSeg"></div>
+    </div>
+
+    <div class="row">
+      <div class="label">Academic Discussion<small>Rubric 0〜5</small></div>
+      <div class="seg" id="adSeg"></div>
+    </div>
+  </div>
+
+  <div class="result">
+    <div class="breakdown" id="breakdown"></div>
+    <div class="band-box">
+      <div><span class="band-num" id="bandNum">–</span><span class="band-of"> / 6.0</span></div>
+      <div class="band-desc" id="bandDesc">素点を入力してください</div>
+    </div>
+  </div>
+  <div class="formula">
+    <b>計算式（機械的・再現可能）：</b><br>
+    BaS換算 = <code>正答数 ÷ 10 × 5</code>（0〜5に正規化）<br>
+    平均 = <code>(BaS換算 + Email + Discussion) ÷ 3</code>（0〜5）<br>
+    バンド = <code>平均 + 1</code> を 0.5 刻みに四捨五入し、1.0〜6.0 にクランプ<br>
+    <span class="note">※ 3タスク等重み。重み変更が必要ならこの係数だけ調整すれば再現性は保てます。</span>
+  </div>
+  <button class="copybtn" onclick="copyResult()">採点結果をコピー（返却メール用）</button>
+
+  <div class="card" style="margin-top:18px">
+    <h2>② 採点 Rubric（参照用）</h2>
+    <p class="hint">ETS 公式の評価観点を要約したもの。返却フィードバックは「日本語の言い換え＋具体例」とセットで。</p>
+    <div class="rubric">
+      <div class="rb">
+        <h3>Write an Email（0〜5）</h3>
+        <table>
+          <tr><td>5</td><td>用件を完全に達成。丁寧さ・レジスター・構成などの社会的慣習が一貫して適切。語彙構文に幅があり、誤りはほぼ時間制約由来のタイプミス程度。</td></tr>
+          <tr><td>4</td><td>おおむね用件を達成し、伝わりやすい。慣習はほぼ適切、誤りは少数。展開はやや浅い箇所あり。</td></tr>
+          <tr><td>3</td><td>用件は概ね達成するが、言語面の制約で明確さ・効果が損なわれる箇所あり。語形・構文・慣習に目立つ誤り。</td></tr>
+          <tr><td>2</td><td>取り組みは見られるが大半が不十分。展開が限定的／無関係。誤りが累積し、読み取りにくい。</td></tr>
+          <tr><td>1</td><td>用件をほぼ達成できない。断片的な英語、深刻で頻繁な誤り、原文の借用が大半。</td></tr>
+          <tr><td>0</td><td>白紙／話題拒否／英語でない／プロンプト丸写し／無関係／無意味な打鍵。</td></tr>
+        </table>
+      </div>
+      <div class="rb">
+        <h3>Academic Discussion（0〜5）</h3>
+        <table>
+          <tr><td>5</td><td>議論への貢献が明確で関連性が高い。説明・例・詳細が十分に展開。構文に幅があり語選択が的確。誤りはほぼなし。</td></tr>
+          <tr><td>4</td><td>関連性が高く、言語運用により考えが容易に伝わる。展開は適切、誤りは少数。</td></tr>
+          <tr><td>3</td><td>概ね関連し理解可能だが、説明・例の一部が欠落／不明瞭。構文・語彙にある程度の幅。誤りが目立つ箇所あり。</td></tr>
+          <tr><td>2</td><td>貢献の試みは見えるが、言語の制約で考えが追いにくい。展開が乏しい／部分的にしか関連しない。誤りが累積。</td></tr>
+          <tr><td>1</td><td>有効な貢献になっておらず、言語の制約で考えがほぼ表現できていない。原文借用が大半。</td></tr>
+          <tr><td>0</td><td>白紙／話題拒否／英語でない／プロンプト丸写し／無関係／無意味な打鍵。</td></tr>
+        </table>
+        <p class="note">※ 他の学生の意見に触れているかは Academic Discussion 評価の重要観点。</p>
+      </div>
+    </div>
+    <div class="rb" style="margin-top:16px;background:#FBF6EC;border:1px solid #F5E9D3;border-radius:10px;padding:16px;">
+      <h3 style="font-size:13px;font-weight:700;color:#007646;margin-bottom:8px;">Build a Sentence（自動採点 → 0〜5 換算）</h3>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <tr><td style="padding:5px 4px;color:#5A6861;">各問は語順が完全一致で正解（許容される別解は登録済み）。正答数（0〜10）を <code>÷10×5</code> で 0〜5 に換算。例：7/10 = 3.5/5。</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="js/admin-auth.js"></script>
+<script>
+  // 認証ゲート: ない／期限切れ／ドメイン不一致なら admin-login.html へ強制リダイレクト
+  const ADMIN = ADMIN_AUTH.require();
+  if (ADMIN) {
+    const el = document.getElementById('adminBadge');
+    const safeName = (ADMIN.name || ADMIN.email).replace(/[<>&]/g, '');
+    let html = '';
+    if (ADMIN.picture) {
+      html += '<img src="' + ADMIN.picture.replace(/[<>"']/g, '') + '" alt="" referrerpolicy="no-referrer">';
+    }
+    html += '<span class="name">' + safeName + '</span>';
+    html += '<button class="btn-logout" type="button" onclick="ADMIN_AUTH.logout()">ログアウト</button>';
+    el.innerHTML = html;
+  }
+
+  /* ===== 採点ロジック（移植） ===== */
+  const STEPS=[0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5];
+  let emailScore=null, adScore=null;
+
+  function buildSeg(id,onpick){
+    const el=document.getElementById(id);
+    STEPS.forEach(v=>{
+      const b=document.createElement('button');
+      b.textContent=v.toFixed(1);
+      b.onclick=()=>{onpick(v);[...el.children].forEach(c=>c.classList.remove('active'));b.classList.add('active');calc();};
+      el.appendChild(b);
+    });
+  }
+  buildSeg('emailSeg',v=>emailScore=v);
+  buildSeg('adSeg',v=>adScore=v);
+
+  function bandDescriptor(b){
+    if(b>=5.5) return '非常に優秀（C1〜）';
+    if(b>=4.5) return '優秀（B2上位）';
+    if(b>=3.5) return '良好（B2前後）';
+    if(b>=2.5) return '発展途上（B1前後）';
+    if(b>=1.5) return '基礎段階（A2前後）';
+    return '初学段階';
+  }
+
+  function calc(){
+    const correct=Math.max(0,Math.min(10,parseInt(document.getElementById('basInput').value)||0));
+    const bas5=correct/10*5;
+    const bd=document.getElementById('breakdown');
+    if(emailScore===null||adScore===null){
+      bd.innerHTML='<span>Build a Sentence:</span> <b>'+correct+'/10 → '+bas5.toFixed(2)+'/5</b><br><span>Email / Discussion を選択すると算出します</span>';
+      document.getElementById('bandNum').textContent='–';
+      document.getElementById('bandDesc').textContent='素点を入力してください';
+      return;
+    }
+    const avg=(bas5+emailScore+adScore)/3;
+    let band=avg+1;
+    band=Math.round(band*2)/2;
+    band=Math.max(1,Math.min(6,band));
+    bd.innerHTML=
+      '<span>Build a Sentence:</span> <b>'+correct+'/10 → '+bas5.toFixed(2)+'/5</b><br>'
+      +'<span>Write an Email:</span> <b>'+emailScore.toFixed(1)+'/5</b><br>'
+      +'<span>Academic Discussion:</span> <b>'+adScore.toFixed(1)+'/5</b><br>'
+      +'<span>平均（0〜5）:</span> <b>'+avg.toFixed(2)+'</b>';
+    document.getElementById('bandNum').textContent=band.toFixed(1);
+    document.getElementById('bandDesc').textContent=bandDescriptor(band);
+  }
+
+  function copyResult(){
+    const correct=parseInt(document.getElementById('basInput').value)||0;
+    const bas5=(correct/10*5).toFixed(2);
+    if(emailScore===null||adScore===null){alert('Email と Discussion のスコアを選択してください。');return;}
+    const avg=((correct/10*5)+emailScore+adScore)/3;
+    let band=Math.max(1,Math.min(6,Math.round((avg+1)*2)/2));
+    const txt=
+'【TCK Workshop ライティング添削コース 採点結果】\n'
++'Build a Sentence : '+correct+'/10（'+bas5+'/5）\n'
++'Write an Email   : '+emailScore.toFixed(1)+'/5\n'
++'Academic Discussion : '+adScore.toFixed(1)+'/5\n'
++'─────────────\n'
++'合算バンドスコア : '+band.toFixed(1)+' / 6.0';
+    navigator.clipboard.writeText(txt).then(()=>alert('コピーしました。')).catch(()=>{prompt('以下をコピーしてください：',txt);});
+  }
+  calc();
+</script>
+<script defer src="../js/tm-footer.js"></script>
+</body>
+</html>
