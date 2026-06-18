@@ -60,10 +60,23 @@ const Auth = {
   showBadge(elementId) {
     const u = this.get();
     const el = document.getElementById(elementId);
-    if (u && u.name && el) {
-      el.innerHTML = 'Welcome, <strong>' + u.name + '</strong>' +
-        ' <a href="#" onclick="Auth.logout();return false;" ' +
-        'style="margin-left:10px;color:inherit;text-decoration:underline;cursor:pointer;font-size:.9em">ログアウト</a>';
+    if (!(u && u.name && el)) return;
+    if (!document.getElementById('tck-badge-styles')) {
+      const s = document.createElement('style');
+      s.id = 'tck-badge-styles';
+      s.textContent =
+        ".auth-logout-btn{display:inline-flex;align-items:center;gap:5px;margin-left:14px;padding:5px 12px 5px 10px;" +
+          "border:1px solid rgba(255,255,255,.35);border-radius:999px;color:inherit;text-decoration:none;" +
+          "font-size:.82em;font-weight:600;line-height:1;transition:all .15s;vertical-align:middle;white-space:nowrap}" +
+        ".auth-logout-btn svg{width:13px;height:13px;fill:currentColor;flex-shrink:0}" +
+        ".auth-logout-btn:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.7)}" +
+        ".auth-logout-btn:focus-visible{outline:2px solid #C9A961;outline-offset:2px}";
+      document.head.appendChild(s);
     }
+    el.innerHTML = 'Welcome, <strong>' + u.name + '</strong>' +
+      ' <a href="#" class="auth-logout-btn" onclick="Auth.logout();return false;" aria-label="ログアウト">' +
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>' +
+        'ログアウト' +
+      '</a>';
   }
 };
