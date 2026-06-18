@@ -233,7 +233,22 @@ function saveResume(){
   } catch(e){}
 }
 function clearResume(){ localStorage.removeItem(RESUME_KEY); }
-function loadResume(){ try { return JSON.parse(localStorage.getItem(RESUME_KEY)); } catch { return null; } }
+function loadResume(){
+  try {
+    const r = JSON.parse(localStorage.getItem(RESUME_KEY));
+    if (!r) return null;
+    /* 旧フォーマット（userAnswers が文字列の配列）は無効化：エンジンが
+       バンクをインデックス管理に変わったため。 */
+    if (Array.isArray(r.userAnswers)) {
+      for (const inner of r.userAnswers) {
+        if (Array.isArray(inner)) {
+          for (const x of inner) { if (typeof x === 'string' && x !== '') return null; }
+        }
+      }
+    }
+    return r;
+  } catch { return null; }
+}
 
 function checkResume(){
   const r = loadResume();
@@ -299,45 +314,47 @@ function renderQ(idx){
   html+='<div class="answer-area" id="answerArea">';
   if(q.fixedStart) html+='<span class="fixed-word">'+q.fixedStart+'</span>';
   for(let i=0;i<q.blanks.length;i++){
-    const word=ua[i]||'';
+    const bIdx=ua[i];
+    const word=(typeof bIdx==='number' && bIdx>=0) ? wb[bIdx] : '';
     const cls=word?'blank-slot has-word':'blank-slot';
-    html+='<div class="'+cls+'" data-idx="'+i+'" ondrop="dropWord(event,'+i+')" ondragover="event.preventDefault();this.classList.add(\'drag-over\')" ondragleave="this.classList.remove(\'drag-over\')" onclick="returnWord('+i+')">'+(word||'')+'</div>';
+    html+='<div class="'+cls+'" data-idx="'+i+'" ondrop="dropWord(event,'+i+')" ondragover="event.preventDefault();this.classList.add(\'drag-over\')" ondragleave="this.classList.remove(\'drag-over\')" onclick="returnWord('+i+')">'+word+'</div>';
   }
   if(q.fixedEnd) html+='<span class="fixed-word">'+q.fixedEnd+'</span>';
   html+='</div>';
   html+='<div class="word-bank" id="wordBank">';
-  wb.forEach(w=>{
-    const used=ua.includes(w);
-    html+='<div class="word-item'+(used?' used':'')+'" draggable="true" ondragstart="dragWord(event,\''+w.replace(/'/g,"\\'")+'\')" onclick="bankTapped(\''+w.replace(/'/g,"\\'")+'\')" data-word="'+w+'">'+w+'</div>';
+  wb.forEach(function(w,bankIdx){
+    const used=ua.includes(bankIdx);
+    html+='<div class="word-item'+(used?' used':'')+'" draggable="true" ondragstart="dragWord(event,'+bankIdx+')" onclick="bankTapped('+bankIdx+')" data-bank-idx="'+bankIdx+'">'+w+'</div>';
   });
   html+='</div>';
   document.getElementById('quizCard').innerHTML=html;
   document.getElementById('btnPrev').disabled=(idx===0);
   document.getElementById('btnNextQ').textContent=(idx===questions.length-1)?'Finish →':'Next →';
 }
-function dragWord(e,word){e.dataTransfer.setData('text',word);}
+function dragWord(e,bankIdx){e.dataTransfer.setData('text',String(bankIdx));}
 function dropWord(e,slotIdx){
   e.preventDefault();
   e.currentTarget.classList.remove('drag-over');
-  const word=e.dataTransfer.getData('text');
+  const bankIdx=parseInt(e.dataTransfer.getData('text'),10);
+  if(isNaN(bankIdx)) return;
   const q=questions[currentQ];
   const ua=userAnswers[currentQ];
-  for(let i=0;i<ua.length;i++){if(ua[i]===word)ua[i]='';}
-  ua[slotIdx]=word;
-  while(ua.length<q.blanks.length) ua.push('');
+  for(let i=0;i<ua.length;i++){if(ua[i]===bankIdx)ua[i]=-1;}
+  ua[slotIdx]=bankIdx;
+  while(ua.length<q.blanks.length) ua.push(-1);
   renderQ(currentQ); saveResume();
 }
 function returnWord(slotIdx){
   const ua=userAnswers[currentQ];
-  if(ua[slotIdx]){ua[slotIdx]='';renderQ(currentQ);saveResume();}
+  if(typeof ua[slotIdx]==='number' && ua[slotIdx]>=0){ua[slotIdx]=-1;renderQ(currentQ);saveResume();}
 }
 /* タップ配置（モバイル対応のフォールバック。デスクトップでもクリックで動作） */
-function bankTapped(word){
+function bankTapped(bankIdx){
   const q=questions[currentQ];
   const ua=userAnswers[currentQ];
-  if(ua.includes(word)) return;
+  if(ua.includes(bankIdx)) return;
   for(let i=0;i<q.blanks.length;i++){
-    if(!ua[i]){ua[i]=word;renderQ(currentQ);saveResume();return;}
+    if(typeof ua[i]!=='number' || ua[i]<0){ua[i]=bankIdx;renderQ(currentQ);saveResume();return;}
   }
 }
 function navQ(dir){
@@ -359,8 +376,10 @@ function finishQuiz(){
   let correct=0;
   questions.forEach((q,i)=>{
     const ua=userAnswers[i];
-    let ok=JSON.stringify(ua)===JSON.stringify(q.answer);
-    if(!ok && q.altAnswers){ok=q.altAnswers.some(a=>JSON.stringify(ua)===JSON.stringify(a));}
+    const wb=bankOrders[i]||[];
+    const placed=ua.map(bIdx=>(typeof bIdx==='number' && bIdx>=0) ? wb[bIdx] : '');
+    let ok=JSON.stringify(placed)===JSON.stringify(q.answer);
+    if(!ok && q.altAnswers){ok=q.altAnswers.some(a=>JSON.stringify(placed)===JSON.stringify(a));}
     if(ok)correct++;
   });
   localStorage.setItem('course_set'+SET_NUMBER+'_sentence_correct',String(correct));

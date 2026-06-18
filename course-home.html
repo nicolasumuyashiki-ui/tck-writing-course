@@ -90,7 +90,10 @@ function render(plan){
   const n = Math.min(plan, BAS_SETS.length);
   for (let i = 1; i <= n; i++){
     const theme = (BAS_SETS[i-1] && BAS_SETS[i-1].theme) ? BAS_SETS[i-1].theme : '';
-    const submitted = !!localStorage.getItem('course_set'+i+'_ad_response');
+    /* 「提出済み」バッジは GAS 送信完了時の _submitted フラグで判定する。
+       _ad_response は旧データの後方互換のためフォールバックとして使う。 */
+    const submitted = localStorage.getItem('course_set'+i+'_submitted') === 'true'
+                   || !!localStorage.getItem('course_set'+i+'_ad_response');
     const a = document.createElement('a');
     a.className = 'set-card';
     a.href = 'writing-sentence.html?set='+i;
