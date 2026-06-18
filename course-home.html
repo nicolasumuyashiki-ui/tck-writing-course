@@ -107,10 +107,14 @@ function render(plan){
 function renderUpgrade(plan){
   const slot = document.getElementById('upgradeSlot');
   slot.innerHTML = '';
-  let nextRange = null, url = null;
-  if (plan === 4)      { nextRange = 'No.5〜8';  url = STRIPE_URL_5_8;  }
-  else if (plan === 8) { nextRange = 'No.9〜12'; url = STRIPE_URL_9_12; }
+  let nextRange = null, baseUrl = null;
+  if (plan === 4)      { nextRange = 'No.5〜8';  baseUrl = STRIPE_URL_5_8;  }
+  else if (plan === 8) { nextRange = 'No.9〜12'; baseUrl = STRIPE_URL_9_12; }
   if (!nextRange) return;  // plan 12 はゴール
+
+  /* Stripe Checkout に受講者IDを連携。決済完了時に Stripe ダッシュボード／
+     Webhookで client_reference_id として参照でき、誰が買ったかを照合できる。 */
+  const url = baseUrl + '?client_reference_id=' + encodeURIComponent(user.id);
 
   const card = document.createElement('div');
   card.className = 'upgrade-card';

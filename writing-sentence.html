@@ -212,7 +212,7 @@ function renderQ(idx){
   const genderImgs=speakerImages[q.gender||'female'];
   const imgSrc=genderImgs[idx%genderImgs.length];
   let html='<div class="q-counter">Question '+(idx+1)+' of '+questions.length+'</div>';
-  html+='<div class="prompt-section"><img class="speaker-avatar" src="'+imgSrc+'" alt=""><div class="prompt-bubble">'+q.prompt+'</div></div>';
+  html+='<div class="prompt-section"><img class="speaker-avatar" src="'+imgSrc+'" alt="Speaker"><div class="prompt-bubble">'+q.prompt+'</div></div>';
   html+='<div class="answer-area" id="answerArea">';
   if(q.fixedStart) html+='<span class="fixed-word">'+q.fixedStart+'</span>';
   for(let i=0;i<q.blanks.length;i++){

@@ -21,9 +21,41 @@ const Auth = {
     return u;
   },
   logout() {
-    if (!confirm('ログアウトしますか？')) return;
-    this.clear();
-    location.href = 'index.html';
+    if (document.querySelector('.tck-logout-modal')) return;
+    if (!document.getElementById('tck-logout-styles')) {
+      const s = document.createElement('style');
+      s.id = 'tck-logout-styles';
+      s.textContent =
+        ".tck-logout-modal{position:fixed;inset:0;background:rgba(0,40,23,.55);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px;font-family:'Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-serif}" +
+        ".tck-logout-card{background:#fff;border-radius:14px;max-width:380px;width:100%;padding:24px;box-shadow:0 12px 40px rgba(0,40,23,.25)}" +
+        ".tck-logout-card h2{font-size:1.1em;font-weight:700;color:#002817;margin:0 0 10px}" +
+        ".tck-logout-card p{font-size:.9em;color:#5A6861;line-height:1.7;margin:0 0 18px}" +
+        ".tck-logout-actions{display:flex;gap:10px;justify-content:flex-end}" +
+        ".tck-logout-actions button{padding:10px 20px;font-family:inherit;font-size:.9em;font-weight:700;border-radius:999px;cursor:pointer;border:none;letter-spacing:.04em}" +
+        ".tck-logout-actions .cancel{background:#F5E9D3;color:#5A6861}" +
+        ".tck-logout-actions .cancel:hover{background:#ead9be}" +
+        ".tck-logout-actions .confirm{background:#007646;color:#fff}" +
+        ".tck-logout-actions .confirm:hover{background:#004D2E}";
+      document.head.appendChild(s);
+    }
+    const m = document.createElement('div');
+    m.className = 'tck-logout-modal';
+    m.innerHTML =
+      '<div class="tck-logout-card" role="dialog" aria-modal="true" aria-labelledby="tckLogoutTitle">' +
+        '<h2 id="tckLogoutTitle">ログアウトしますか？</h2>' +
+        '<p>次回ログインする際は、受講者IDとパスワードが必要です。控えをお手元にご準備ください。</p>' +
+        '<div class="tck-logout-actions">' +
+          '<button type="button" class="cancel">キャンセル</button>' +
+          '<button type="button" class="confirm">ログアウト</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(m);
+    const close = () => { m.remove(); document.removeEventListener('keydown', esc); };
+    const esc = e => { if (e.key === 'Escape') close(); };
+    m.querySelector('.cancel').onclick = close;
+    m.querySelector('.confirm').onclick = () => { this.clear(); location.href = 'index.html'; };
+    m.onclick = e => { if (e.target === m) close(); };
+    document.addEventListener('keydown', esc);
   },
   showBadge(elementId) {
     const u = this.get();
