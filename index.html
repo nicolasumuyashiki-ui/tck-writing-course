@@ -57,7 +57,9 @@ body{justify-content:flex-start}
 .spinner{display:inline-block;width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .login-tm{padding:14px 28px 10px;text-align:center;font-size:11px;color:#8a8f8c;line-height:1.6;font-family:var(--font-jp)}
-.admin-link{display:block;max-width:420px;margin:8px auto 0;padding:0 4px;text-align:right;font-family:var(--font-jp);font-size:.72em;color:var(--ink-500);text-decoration:none;opacity:.6;transition:opacity .15s}
+.login-stack{display:flex;flex-direction:column;align-items:stretch;width:100%;max-width:420px;margin:24px auto}
+.login-stack .login-card{margin:0}
+.admin-link{display:block;margin-top:8px;padding:0 6px;text-align:right;font-family:var(--font-jp);font-size:.74em;color:var(--ink-500);text-decoration:none;opacity:.55;transition:opacity .15s}
 .admin-link:hover{opacity:1;text-decoration:underline}
 .login-footer{border-top:1px solid var(--paper);padding:12px 28px 14px;text-align:center;font-size:.78em;color:var(--ink-500);font-family:var(--font-jp);letter-spacing:.02em}
 .forgot-link{display:block;width:100%;margin-top:14px;text-align:center;background:none;border:none;font-family:var(--font-jp);font-size:.82em;color:var(--green);text-decoration:underline;cursor:pointer;padding:4px}
@@ -86,6 +88,7 @@ body{justify-content:flex-start}
   </div>
 </div>
 <div class="main">
+ <div class="login-stack">
   <div class="login-card">
     <div class="login-header">
       <img class="brand-logo" src="assets/tck-logo.png" alt="TCK Workshop">
@@ -132,6 +135,7 @@ body{justify-content:flex-start}
     <div class="login-tm">TOEFL および TOEFL iBT は ETS の登録商標です。本教材は ETS の承認・推奨を受けたものではありません。<br>TOEFL and TOEFL iBT are registered trademarks of ETS. This product is not endorsed or approved by ETS.</div>
   </div>
   <a href="admin-login.html" class="admin-link">管理者ログインはこちら →</a>
+ </div>
 </div>
 
 <script src="js/api.js"></script>
