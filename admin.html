@@ -154,15 +154,29 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
 
 <script src="js/admin-auth.js"></script>
 <script>
+  // 認証GAS から戻ってきた場合、URL の hash に email が乗っている
+  (function processIncomingAuth(){
+    try {
+      const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      const email = hash.get('admin_email');
+      if (email) {
+        const ok = ADMIN_AUTH.acceptEmail(email);
+        // URL を綺麗にして hash を消す
+        history.replaceState(null, '', location.pathname);
+        if (!ok) {
+          // domain チェック失敗 → login へ
+          location.href = 'admin-login.html';
+        }
+      }
+    } catch(e){}
+  })();
+
   // 認証ゲート: ない／期限切れ／ドメイン不一致なら admin-login.html へ強制リダイレクト
   const ADMIN = ADMIN_AUTH.require();
   if (ADMIN) {
     const el = document.getElementById('adminBadge');
     const safeName = (ADMIN.name || ADMIN.email).replace(/[<>&]/g, '');
     let html = '';
-    if (ADMIN.picture) {
-      html += '<img src="' + ADMIN.picture.replace(/[<>"']/g, '') + '" alt="" referrerpolicy="no-referrer">';
-    }
     html += '<span class="name">' + safeName + '</span>';
     html += '<button class="btn-logout" type="button" onclick="ADMIN_AUTH.logout()">ログアウト</button>';
     el.innerHTML = html;
