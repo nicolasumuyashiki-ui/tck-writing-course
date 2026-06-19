@@ -118,7 +118,21 @@ body{justify-content:flex-start}
       <button class="btn-login" id="loginBtn" onclick="doLogin()">
         <span id="loginBtnText">ログイン</span>
       </button>
+      <button type="button" class="forgot-link" onclick="openFirstLoginModal()">初回ログインの方はこちら</button>
       <button type="button" class="forgot-link" onclick="openResetModal()">ID／パスワードをお忘れの方はこちら</button>
+    </div>
+
+    <div class="modal-overlay" id="firstLoginModal" onclick="if(event.target===this)closeFirstLoginModal()">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="firstLoginTitle">
+        <h2 id="firstLoginTitle">初回ログインの方へ</h2>
+        <p>ライティング添削コースをご購入いただきありがとうございます。<br>お申し込み完了後、ご登録のメールアドレス宛に <strong>受講者ID</strong> と <strong>初期パスワード</strong> を 1 営業日以内にお送りしています。</p>
+        <p>1 営業日以上経ってもメールが届かない場合（迷惑メールフォルダもご確認のうえ）、下記アドレスまでお問い合わせください。</p>
+        <div class="modal-email">writing2026@tckworkshop.co.jp</div>
+        <div class="modal-actions">
+          <button type="button" class="modal-btn cancel" onclick="closeFirstLoginModal()">閉じる</button>
+          <button type="button" class="modal-btn primary" onclick="openFirstLoginMail()">お問い合わせメールを作成</button>
+        </div>
+      </div>
     </div>
 
     <div class="modal-overlay" id="resetModal" onclick="if(event.target===this)closeResetModal()">
@@ -148,13 +162,21 @@ body{justify-content:flex-start}
 
   function openResetModal(){ document.getElementById('resetModal').classList.add('show'); }
   function closeResetModal(){ document.getElementById('resetModal').classList.remove('show'); }
+  function openFirstLoginModal(){ document.getElementById('firstLoginModal').classList.add('show'); }
+  function closeFirstLoginModal(){ document.getElementById('firstLoginModal').classList.remove('show'); }
+  function openFirstLoginMail(){
+    const to = 'writing2026@tckworkshop.co.jp';
+    const subject = '【ライティング添削コース】初回ログイン情報のお問い合わせ';
+    const body = 'TCK Workshop ライティング添削コース 担当者様\n\nライティング添削コースを購入したのですが、ログイン用のIDとパスワードのメールが届いておりません。ご確認のほどお願いいたします。\n\n■ お名前（フルネーム）:\n■ ご登録メールアドレス:\n■ ご購入時期（おおよそで結構です）:\n■ Stripe注文番号（メールに記載されている場合）:\n\nご対応のほど、よろしくお願いいたします。';
+    location.href = 'mailto:' + encodeURIComponent(to) + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  }
   function openMailClient(){
     const to = 'writing2026@tckworkshop.co.jp';
     const subject = '【ライティング添削コース】ID／パスワード再発行のお願い';
     const body = 'TCK Workshop ライティング添削コース 担当者様\n\nID（またはパスワード）を失念してしまったため、再発行をお願いいたします。\n\n■ お名前（フルネーム）:\n■ ご登録メールアドレス:\n■ お申込み時期（おおよそで結構です）:\n■ ご状況の補足（任意）:\n\nご対応のほど、よろしくお願いいたします。';
     location.href = 'mailto:' + encodeURIComponent(to) + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
   }
-  document.addEventListener('keydown', e => { if(e.key==='Escape') closeResetModal(); });
+  document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeResetModal(); closeFirstLoginModal(); } });
 
   async function doLogin(){
     const uid  = document.getElementById('userId').value.trim();
