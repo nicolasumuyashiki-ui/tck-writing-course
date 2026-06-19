@@ -5,7 +5,7 @@
  *  - getUser: ID だけで現在の plan を取得（course-home が同期に使う）
  */
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbx9ohGwz8pz-tmrvthxWTy5zoEwvq77WonVlivFwQB48bq_VVkiRemmERE41y9PRKeg6w/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwXSB3bHsGwuFxZKcIsF6PBC332ZUVSQ10tWC7w-dL3YMa2ZLtdFyL50tTJ99EW8T9xag/exec';
 
 const API = {
   async login(id, pass) {
