@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>添削結果 PDF サンプル — TCK Workshop ライティング添削コース</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#007646;
+  --green-dark:#004D2E;
+  --green-deep:#002817;
+  --gold:#C9A961;
+  --cream:#FBF6EC;
+  --paper:#F5E9D3;
+  --ink-900:#0F1511;
+  --ink-500:#5A6861;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:#e8e8e3;font-family:'Manrope','Noto Sans JP',sans-serif;color:var(--ink-900);}
+.preview-note{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid var(--paper);border-radius:999px;padding:8px 18px;font-size:12px;color:var(--ink-500);box-shadow:0 4px 14px rgba(0,0,0,.08);z-index:100;}
+.preview-note b{color:var(--green);}
+
+@page{size:A4;margin:0;}
+@media print{
+  html,body{background:#fff;}
+  .preview-note{display:none;}
+}
+
+.page{
+  width:210mm;min-height:297mm;
+  margin:30px auto;padding:18mm 18mm 14mm;
+  background:#fff;box-shadow:0 8px 32px rgba(0,40,23,.12);
+  position:relative;
+  page-break-after:always;
+}
+.page:last-child{page-break-after:avoid;}
+
+/* ===== 共通：ヘッダー・フッター ===== */
+.page-header{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--paper);margin-bottom:20px;}
+.page-header .brand{font-size:11px;letter-spacing:.14em;color:var(--green);font-weight:800;text-transform:uppercase;}
+.page-header .meta{margin-left:auto;font-size:11px;color:var(--ink-500);}
+.page-footer{position:absolute;bottom:10mm;left:18mm;right:18mm;padding-top:6px;border-top:1px solid var(--paper);font-size:9px;color:#8a8f8c;display:flex;justify-content:space-between;}
+.page-footer .ets{flex:1;line-height:1.5;}
+.page-footer .pgn{font-weight:600;}
+
+/* ===== 表紙 ===== */
+.cover{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;min-height:255mm;}
+.cover .kicker{font-size:14px;letter-spacing:.18em;color:var(--gold);font-weight:800;text-transform:uppercase;margin-bottom:14px;}
+.cover h1{font-family:'Noto Sans JP',sans-serif;font-size:34px;font-weight:700;color:var(--green-deep);margin-bottom:8px;line-height:1.3;}
+.cover .subtitle{font-size:14px;color:var(--ink-500);margin-bottom:48px;}
+.cover .student-card{background:var(--cream);border:1px solid var(--paper);border-radius:14px;padding:22px 32px;margin-bottom:44px;min-width:340px;}
+.cover .student-card .row{display:flex;justify-content:space-between;gap:24px;padding:6px 0;font-size:13px;}
+.cover .student-card .row .label{color:var(--ink-500);}
+.cover .student-card .row .value{color:var(--green-deep);font-weight:600;}
+.band-result{background:linear-gradient(135deg,var(--green-deep),var(--green-dark));color:#fff;border-radius:18px;padding:32px 56px;text-align:center;box-shadow:0 8px 26px rgba(0,40,23,.18);}
+.band-result .label{font-size:11px;letter-spacing:.18em;font-weight:700;color:var(--gold);text-transform:uppercase;margin-bottom:10px;}
+.band-result .number{display:flex;align-items:baseline;justify-content:center;gap:6px;}
+.band-result .number .big{font-size:88px;font-weight:800;line-height:1;font-family:'Manrope',sans-serif;}
+.band-result .number .of{font-size:24px;color:rgba(255,255,255,.65);font-weight:600;}
+.band-result .desc{font-size:13px;color:rgba(255,255,255,.85);margin-top:8px;}
+
+/* ===== 詳細スコア ===== */
+.section-title{font-size:17px;font-weight:700;color:var(--green-deep);border-bottom:2px solid var(--green);padding-bottom:6px;margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+.section-title .num{background:var(--green);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
+
+.score-table{width:100%;border-collapse:collapse;margin-bottom:18px;font-size:13px;}
+.score-table th{background:var(--cream);color:var(--green);padding:11px 14px;text-align:left;font-weight:700;font-size:12px;letter-spacing:.04em;border-bottom:1px solid var(--paper);}
+.score-table td{padding:13px 14px;border-bottom:1px solid var(--paper);}
+.score-table tr:last-child td{border-bottom:none;}
+.score-table .task{font-weight:700;color:var(--green-deep);}
+.score-table .raw{color:var(--ink-500);font-size:12px;}
+.score-table .conv{font-weight:700;color:var(--green);text-align:right;}
+.score-table tr.total{background:var(--cream);}
+.score-table tr.total td{padding:14px;font-weight:700;color:var(--green-deep);}
+
+.calc-box{background:#FDF7E8;border-left:4px solid var(--gold);border-radius:6px;padding:14px 16px;margin-bottom:24px;font-size:12px;line-height:1.8;color:#5A4A1E;}
+.calc-box b{color:var(--green-deep);}
+.calc-box code{background:#fff;padding:1px 6px;border-radius:4px;font-size:11px;color:var(--green-deep);font-family:'Manrope','SF Mono',Consolas,monospace;}
+
+.task-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:24px;}
+.task-summary .task-card{background:var(--cream);border:1px solid var(--paper);border-radius:10px;padding:16px;}
+.task-summary .task-card .name{font-size:11px;color:var(--green);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;}
+.task-summary .task-card .score{font-size:24px;font-weight:800;color:var(--green-deep);font-family:'Manrope',sans-serif;}
+.task-summary .task-card .raw{font-size:11px;color:var(--ink-500);margin-top:4px;}
+
+/* ===== フィードバック ===== */
+.feedback-block{background:var(--cream);border-radius:10px;padding:18px 22px;margin-bottom:14px;}
+.feedback-block h3{font-size:13px;font-weight:700;color:var(--green);margin-bottom:6px;letter-spacing:.04em;}
+.feedback-block .sub{font-size:11px;color:var(--ink-500);margin-bottom:10px;}
+.feedback-block .body{font-size:12.5px;color:var(--ink-900);line-height:1.85;white-space:pre-wrap;}
+
+.next-step{background:linear-gradient(135deg,#FBF6EC,#fff);border:1px solid var(--paper);border-radius:12px;padding:16px 20px;margin-top:24px;}
+.next-step h3{font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px;}
+.next-step p{font-size:12px;color:var(--ink-900);line-height:1.8;}
+</style>
+</head>
+<body>
+
+<div class="preview-note">📄 これは PDF プレビューです。本番は GAS が同形式で生成し、メール添付されます。 — <b>添削結果（受講者宛）</b></div>
+
+<!-- ===== Page 1: 表紙 ===== -->
+<div class="page">
+  <div class="page-header">
+    <span class="brand">TCK Workshop ライティング添削コース</span>
+    <span class="meta">添削結果 / RETURN</span>
+  </div>
+
+  <div class="cover">
+    <div class="kicker">Writing Feedback</div>
+    <h1>ライティング添削結果</h1>
+    <p class="subtitle">TOEFL iBT® テスト Writing 対策</p>
+
+    <div class="student-card">
+      <div class="row"><span class="label">受講者</span><span class="value">西宮 ニコ 様</span></div>
+      <div class="row"><span class="label">受講者ID</span><span class="value">nico1</span></div>
+      <div class="row"><span class="label">セット</span><span class="value">Practice Set 3 — Travel</span></div>
+      <div class="row"><span class="label">提出日</span><span class="value">2026/06/15</span></div>
+      <div class="row"><span class="label">返却日</span><span class="value">2026/06/18</span></div>
+      <div class="row"><span class="label">担当講師</span><span class="value">Nico (TCK Workshop)</span></div>
+    </div>
+
+    <div class="band-result">
+      <div class="label">合算バンドスコア</div>
+      <div class="number"><span class="big">4.5</span><span class="of">/ 6.0</span></div>
+      <div class="desc">優秀（B2 上位レベル）</div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="ets">TOEFL および TOEFL iBT は ETS の登録商標です。本教材は ETS の承認・推奨を受けたものではありません。</div>
+    <div class="pgn">1 / 3</div>
+  </div>
+</div>
+
+<!-- ===== Page 2: 詳細スコアと計算 ===== -->
+<div class="page">
+  <div class="page-header">
+    <span class="brand">TCK Workshop ライティング添削コース</span>
+    <span class="meta">Practice Set 3 / 西宮 ニコ 様</span>
+  </div>
+
+  <div class="section-title"><span class="num">1</span>各タスクの素点</div>
+  <table class="score-table">
+    <thead>
+      <tr>
+        <th style="width:38%">タスク</th>
+        <th style="width:32%">素点</th>
+        <th style="width:30%;text-align:right">0〜5 換算</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="task">Build a Sentence</span><br><span class="raw">並べ替え 10 問・自動採点</span></td>
+        <td><b>7 / 10</b><span class="raw"> （正答数）</span></td>
+        <td class="conv">3.50 / 5</td>
+      </tr>
+      <tr>
+        <td><span class="task">Write an Email</span><br><span class="raw">ETS Rubric 0〜5</span></td>
+        <td><b>4.0 / 5</b></td>
+        <td class="conv">4.00 / 5</td>
+      </tr>
+      <tr>
+        <td><span class="task">Academic Discussion</span><br><span class="raw">ETS Rubric 0〜5</span></td>
+        <td><b>3.5 / 5</b></td>
+        <td class="conv">3.50 / 5</td>
+      </tr>
+      <tr class="total">
+        <td>3 タスク平均</td>
+        <td>—</td>
+        <td class="conv">3.67 / 5</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="calc-box">
+    <b>計算式（同梱の「採点基準と計算方法 PDF」もご参照ください）：</b><br>
+    バンドスコア = <code>平均（0〜5） + 1</code> を 0.5 刻みで四捨五入 → <b>4.5 / 6.0</b>
+  </div>
+
+  <div class="section-title"><span class="num">2</span>タスク別サマリー</div>
+  <div class="task-summary">
+    <div class="task-card">
+      <div class="name">Build a Sentence</div>
+      <div class="score">3.5 <span style="font-size:14px;color:#5A6861">/ 5</span></div>
+      <div class="raw">正答 7 / 10（70%）</div>
+    </div>
+    <div class="task-card">
+      <div class="name">Write an Email</div>
+      <div class="score">4.0 <span style="font-size:14px;color:#5A6861">/ 5</span></div>
+      <div class="raw">概ね用件達成・伝達明確</div>
+    </div>
+    <div class="task-card">
+      <div class="name">Academic Discussion</div>
+      <div class="score">3.5 <span style="font-size:14px;color:#5A6861">/ 5</span></div>
+      <div class="raw">関連性あり・展開やや浅め</div>
+    </div>
+  </div>
+
+  <div class="section-title"><span class="num">3</span>総評</div>
+  <div class="feedback-block">
+    <h3>OVERALL</h3>
+    <div class="body">基本的な文構造とパラフレーズの引き出しが安定してきました。特に Email では受け手の状況を踏まえた丁寧なレジスターが選べており、伝達面で大きく前進しています。次のステップは、Academic Discussion での「具体例の踏み込み方」と「2 人の学生の意見への直接的な応答」です。ここを意識的に練習すれば 5.0 が見えてきます。</div>
+  </div>
+
+  <div class="page-footer">
+    <div class="ets">TOEFL および TOEFL iBT は ETS の登録商標です。本教材は ETS の承認・推奨を受けたものではありません。</div>
+    <div class="pgn">2 / 3</div>
+  </div>
+</div>
+
+<!-- ===== Page 3: タスク別フィードバック ===== -->
+<div class="page">
+  <div class="page-header">
+    <span class="brand">TCK Workshop ライティング添削コース</span>
+    <span class="meta">Practice Set 3 / 西宮 ニコ 様</span>
+  </div>
+
+  <div class="section-title"><span class="num">4</span>タスク別フィードバック</div>
+
+  <div class="feedback-block">
+    <h3>BUILD A SENTENCE（並べ替え）</h3>
+    <div class="sub">正答 7 / 10 → 3.5 / 5</div>
+    <div class="body">主に副詞句の位置で 3 問落としています。`even` `actually` `only` のような限定副詞は動詞の直前に置く、`very kindly` のような評価副詞は動詞の直前 + 目的語の前、というルールを意識して語順を組み立ててみてください。許容される別解は登録済みですが、不自然な語順は失点します。</div>
+  </div>
+
+  <div class="feedback-block">
+    <h3>WRITE AN EMAIL</h3>
+    <div class="sub">4.0 / 5</div>
+    <div class="body">用件は明確、書き出し・締めくくりのレジスターも適切。3 つのタスクポイントを過不足なくカバーできています。改善余地：(1) パラグラフ内のつなぎ語が "And" "Also" に寄っているので "In addition," "Moreover," "What's more," 等で展開を立体化、(2) "I would like to" の繰り返しが多いので "I'd appreciate if you could…" 等の代替表現を 1 〜 2 回入れる、(3) 結びの "Looking forward to your reply." の前にもう一文、相手の状況を慮る文（"I understand you may be busy…" 等）を入れると 4.5 〜 5.0 に届きます。</div>
+  </div>
+
+  <div class="feedback-block">
+    <h3>ACADEMIC DISCUSSION</h3>
+    <div class="sub">3.5 / 5</div>
+    <div class="body">立場は明確で、教授の質問にも正面から答えられています。ただし Andrew と Claire の意見への直接的な参照が無いまま自分の意見だけを書き切ってしまっており、これが Academic Discussion の評価軸では大きな失点要因です。次回は冒頭で "While Andrew suggests X, I would argue that…" のように、必ず 1 人以上の意見に touch してから自分の主張を展開してください。具体例も "for instance" + 個人体験 + 簡単な数値（時間・人数等）まで踏み込むと評価が上がります。</div>
+  </div>
+
+  <div class="next-step">
+    <h3>次回の練習ポイント</h3>
+    <p>Practice Set 4「Work &amp; Jobs」では、Academic Discussion で <b>「他の学生の意見を 1 行引用してから自分の立場を述べる」</b>パターンを意識的に試してみてください。Email では <b>新しいつなぎ語を 1 つ以上</b>使い、結びの一文を工夫することを目標に。</p>
+  </div>
+
+  <div class="page-footer">
+    <div class="ets">TOEFL および TOEFL iBT は ETS の登録商標です。本教材は ETS の承認・推奨を受けたものではありません。</div>
+    <div class="pgn">3 / 3</div>
+  </div>
+</div>
+
+</body>
+</html>

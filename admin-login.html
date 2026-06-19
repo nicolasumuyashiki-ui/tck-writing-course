@@ -61,7 +61,7 @@ body{justify-content:flex-start}
       <img class="brand-logo" src="assets/tck-logo.png" alt="TCK Workshop">
       <div class="kicker">INTERNAL — STAFF ONLY</div>
       <h1>管理者ログイン</h1>
-      <p>採点・バンドスコア計算ツール<br><strong>@tckworkshop.co.jp</strong> アカウント専用</p>
+      <p>採点・バンドスコア計算ツール<br>管理者ID とパスワードを入力してください</p>
     </div>
     <div class="login-body">
       <div class="error-msg" id="errorMsg">
@@ -69,13 +69,11 @@ body{justify-content:flex-start}
         <span id="errorText"></span>
       </div>
 
-      <p class="note"><code>@tckworkshop.co.jp</code> のメールアドレスのみログイン可能</p>
-
       <div class="form-group">
-        <label for="adminEmail">メールアドレス</label>
+        <label for="adminId">管理者ID</label>
         <div class="input-wrap">
-          <svg class="input-icon" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-          <input type="email" class="form-input" id="adminEmail" placeholder="you@tckworkshop.co.jp" autocomplete="username" autofocus>
+          <svg class="input-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <input type="text" class="form-input" id="adminId" placeholder="管理者ID" autocomplete="username" autofocus>
         </div>
       </div>
       <div class="form-group">
@@ -100,29 +98,24 @@ body{justify-content:flex-start}
   if (ADMIN_AUTH.get()) location.href = 'admin.html';
 
   document.getElementById('adminPassword').addEventListener('keydown', e => { if (e.key === 'Enter') doAdminLogin(); });
-  document.getElementById('adminEmail').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('adminPassword').focus(); });
+  document.getElementById('adminId').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('adminPassword').focus(); });
 
   async function doAdminLogin(){
-    const email = document.getElementById('adminEmail').value.trim();
-    const pass  = document.getElementById('adminPassword').value;
-    const btn   = document.getElementById('loginBtn');
-    const txt   = document.getElementById('loginBtnText');
-    const err   = document.getElementById('errorMsg');
-    const errT  = document.getElementById('errorText');
+    const id   = document.getElementById('adminId').value.trim();
+    const pass = document.getElementById('adminPassword').value;
+    const btn  = document.getElementById('loginBtn');
+    const txt  = document.getElementById('loginBtnText');
+    const err  = document.getElementById('errorMsg');
+    const errT = document.getElementById('errorText');
 
-    if (!email || !pass) { err.classList.add('show'); errT.textContent = 'メールアドレスとパスワードを入力してください。'; return; }
-    if (!email.toLowerCase().endsWith('@' + ADMIN_AUTH.ALLOWED_DOMAIN)) {
-      err.classList.add('show');
-      errT.textContent = '@tckworkshop.co.jp のメールアドレスでログインしてください。';
-      return;
-    }
+    if (!id || !pass) { err.classList.add('show'); errT.textContent = 'IDとパスワードを入力してください。'; return; }
 
     err.classList.remove('show');
     btn.disabled = true;
     txt.innerHTML = '<span class="spinner"></span>ログイン中…';
 
     try {
-      const result = await ADMIN_AUTH.login(email, pass);
+      const result = await ADMIN_AUTH.login(id, pass);
       if (result.success && ADMIN_AUTH.acceptSession(result)) {
         location.href = 'admin.html';
         return;
