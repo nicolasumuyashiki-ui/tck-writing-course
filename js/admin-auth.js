@@ -1,44 +1,41 @@
 /**
  * 管理者セッション管理（@tckworkshop.co.jp 限定）
  *
- * 認証フロー（Google Cloud 不要・GAS のみ）:
- *  1. admin-login.html で「Googleでログイン」をクリック
- *  2. 認証GAS（"Anyone with Google account" デプロイ）に遷移
- *  3. Google が自動ログインを要求 → ログイン後 GAS の doGet が実行
- *  4. GAS が Session.getActiveUser().getEmail() でメール取得
- *  5. ドメインが @tckworkshop.co.jp なら admin.html#admin_email=... に
- *     JS リダイレクト。そうでなければ「アクセス権限なし」HTMLを返す
- *  6. admin.html が URL hash から email を取り出して acceptEmail() で
- *     localStorage に保存
+ * 認証方式（手動 email + password）:
+ *  1. admin-login.html で email と password を入力
+ *  2. 既存の認証GAS（"Anyone" デプロイ）に fetch
+ *  3. GAS が admins シートを参照し、email が @tckworkshop.co.jp で
+ *     終わり、かつ password が一致することを確認
+ *  4. OK なら success + email + name を JSON で返す
+ *  5. フロントが localStorage に保存して admin.html に遷移
  *
  * セキュリティ:
- *  - GAS デプロイの「Anyone with Google account」設定が Google ログイン強制
- *  - GAS 側で endsWith('@tckworkshop.co.jp') を厳格チェック（攻撃面のメイン）
- *  - localStorage に保存される email も読み込み時に再チェック
+ *  - GAS 側で email.endsWith('@tckworkshop.co.jp') を厳格チェック
+ *    （admins シートに非 tckworkshop メールを誤って入れても弾く二重防御）
+ *  - localStorage の email も読み込み時に再チェック
  *    （DevTools で他ドメインに改竄しても次のロードでクリアされる）
- *  - リダイレクト先 URL は GAS 側ホワイトリストで制限（オープンリダイレクト防止）
  *  - 8 時間で自動失効
- *
- * 注意:
- *  - GitHub Pages は静的配信のため、最終的な保護はクライアントサイド
- *  - 採点ツール自体は機密データを持たないため、本実装で十分
- *  - 将来サーバーサイド処理を追加する際は GAS 側で email を再検証すること
  */
 const ADMIN_AUTH = {
-  // ★ 認証 GAS の "Anyone with Google account" デプロイ URL（学生用「Anyone」とは別）
-  AUTH_GAS_URL: 'https://script.google.com/macros/s/AKfycbwHRX2qM_Ow2viWMKKrTLsx1TW0B4_bM9NgyzzICQoCVh-F27K_7MnlVTJqErlMmHBU2Q/exec',
+  // 既存の認証 GAS（受講者ログインと同じ "Anyone" デプロイ）
+  AUTH_GAS_URL: 'https://script.google.com/macros/s/AKfycbx9ohGwz8pz-tmrvthxWTy5zoEwvq77WonVlivFwQB48bq_VVkiRemmERE41y9PRKeg6w/exec',
   ALLOWED_DOMAIN: 'tckworkshop.co.jp',
   STORAGE_KEY: 'tck_admin',
   SESSION_MS: 8 * 60 * 60 * 1000, // 8 時間
 
-  loginUrl(returnTo) {
-    return this.AUTH_GAS_URL + '?action=adminAuth&redirect=' + encodeURIComponent(returnTo);
+  async login(email, pass) {
+    const url = this.AUTH_GAS_URL
+      + '?action=adminLogin'
+      + '&email=' + encodeURIComponent(email)
+      + '&pass=' + encodeURIComponent(pass);
+    const res = await fetch(url, { redirect: 'follow' });
+    return res.json();
   },
 
-  acceptEmail(email) {
-    email = String(email || '').toLowerCase().trim();
+  acceptSession(data) {
+    const email = String((data && data.email) || '').toLowerCase().trim();
     if (!email || !email.endsWith('@' + this.ALLOWED_DOMAIN)) return false;
-    const name = email.split('@')[0];
+    const name = (data && data.name) || email.split('@')[0];
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify({
       email: email,
       name: name,
