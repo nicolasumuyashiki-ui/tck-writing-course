@@ -25,8 +25,8 @@
  *  - 将来サーバーサイド処理を追加する際は GAS 側で email を再検証すること
  */
 const ADMIN_AUTH = {
-  // ★ 認証 GAS の "Anyone with Google account" デプロイ URL（新規作成必要）
-  AUTH_GAS_URL: 'PASTE_ADMIN_AUTH_GAS_URL_HERE',
+  // ★ 認証 GAS の "Anyone with Google account" デプロイ URL（学生用「Anyone」とは別）
+  AUTH_GAS_URL: 'https://script.google.com/macros/s/AKfycbwHRX2qM_Ow2viWMKKrTLsx1TW0B4_bM9NgyzzICQoCVh-F27K_7MnlVTJqErlMmHBU2Q/exec',
   ALLOWED_DOMAIN: 'tckworkshop.co.jp',
   STORAGE_KEY: 'tck_admin',
   SESSION_MS: 8 * 60 * 60 * 1000, // 8 時間
