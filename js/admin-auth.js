@@ -24,7 +24,11 @@ const ADMIN_AUTH = {
   SESSION_MS: 8 * 60 * 60 * 1000, // 8 時間
 
   loginUrl(returnTo) {
-    return this.AUTH_GAS_URL + '?action=adminAuth&redirect=' + encodeURIComponent(returnTo);
+    const gasUrl = this.AUTH_GAS_URL + '?action=adminAuth&redirect=' + encodeURIComponent(returnTo);
+    // 複数 Google アカウントログイン対策：AccountChooser を経由して
+    // ユーザーに tckworkshop アカウントを選択させてから GAS に遷移する。
+    // これがないと Google がデフォルトで authuser=0 を使ってしまい、別アカウントで認証されてしまう。
+    return 'https://accounts.google.com/AccountChooser?continue=' + encodeURIComponent(gasUrl);
   },
 
   acceptSession(data) {
