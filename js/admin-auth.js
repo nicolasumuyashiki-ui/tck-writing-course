@@ -23,8 +23,24 @@ const ADMIN_AUTH = {
   STORAGE_KEY: 'tck_admin',
   SESSION_MS: 8 * 60 * 60 * 1000, // 8 時間
 
-  loginUrl(returnTo) {
-    return this.AUTH_GAS_URL + '?action=adminAuth&redirect=' + encodeURIComponent(returnTo);
+  EMAIL_HINT_KEY: 'tck_admin_email_hint',
+
+  loginUrl(returnTo, emailHint) {
+    const gasUrl = this.AUTH_GAS_URL + '?action=adminAuth&redirect=' + encodeURIComponent(returnTo);
+    // メールアドレスをヒントとして渡すことで、Google アカウントピッカーが
+    // 該当アカウントを事前選択。複数 Google アカウントログイン中でも確実に
+    // 目的のアカウントに誘導できる。
+    const params = ['continue=' + encodeURIComponent(gasUrl)];
+    if (emailHint) params.unshift('Email=' + encodeURIComponent(emailHint));
+    return 'https://accounts.google.com/AccountChooser?' + params.join('&');
+  },
+
+  getEmailHint() {
+    try { return localStorage.getItem(this.EMAIL_HINT_KEY) || ''; } catch { return ''; }
+  },
+
+  saveEmailHint(email) {
+    try { localStorage.setItem(this.EMAIL_HINT_KEY, String(email || '').trim()); } catch {}
   },
 
   acceptSession(data) {
