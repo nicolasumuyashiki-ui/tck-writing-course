@@ -1,40 +1,42 @@
 /**
- * 管理者セッション管理（adminId + password 方式）
+ * 管理者セッション管理（Google サインイン方式・自動登録対応）
  *
  * 認証フロー:
- *  1. admin-login.html で adminId と password を入力
- *  2. 既存の認証GAS（"Anyone" デプロイ）に fetch
- *  3. GAS が admins シートを参照、adminId と password の一致を確認
- *  4. OK なら success + adminId + name を JSON で返す
- *  5. フロントが localStorage に保存して admin.html に遷移
+ *  1. admin-login.html で「Google でサインイン」をクリック
+ *  2. 認証GAS の「TCKWorkshop 内の全員」デプロイにリダイレクト
+ *  3. Google が tckworkshop.co.jp Workspace 所属を検証（Google レイヤーで強制）
+ *  4. GAS が Session.getActiveUser() でメール取得
+ *  5. admins シートに無ければ自動追加、あれば既存情報を取得
+ *  6. admin.html?#admin_email=...&admin_id=...&admin_name=... にリダイレクト
+ *  7. admin.html が hash から取り出して localStorage に保存
  *
- * 設計判断:
- *  - admin の追加は運営者が admins シートに行追加する形なので、
- *    自動的に「事前承認済み」扱い → ドメイン制限は不要
- *  - 学生用 ログインと同じ ID + password パターンに統一
+ * セキュリティ:
+ *  - 「TCKWorkshop 内の全員」設定により、Google レイヤーで Workspace 所属を強制
+ *  - GAS 側でも email.endsWith('@tckworkshop.co.jp') を二重検証
+ *  - localStorage の email も読み込み時に再チェック
+ *  - 8 時間で自動失効
  */
 const ADMIN_AUTH = {
-  // 既存の認証 GAS（受講者ログインと同じ "Anyone" デプロイ）
-  AUTH_GAS_URL: 'https://script.google.com/macros/s/AKfycbx9ohGwz8pz-tmrvthxWTy5zoEwvq77WonVlivFwQB48bq_VVkiRemmERE41y9PRKeg6w/exec',
+  // 認証 GAS の「TCKWorkshop 内の全員」デプロイ URL
+  AUTH_GAS_URL: 'https://script.google.com/macros/s/AKfycbwu6uddwmTUEKTOWWLGifyEVUHrzK-3S5WPJEWBCQLecdsZBryMzS3KAmQrRlL5QgLvhw/exec',
+  ALLOWED_DOMAIN: 'tckworkshop.co.jp',
   STORAGE_KEY: 'tck_admin',
   SESSION_MS: 8 * 60 * 60 * 1000, // 8 時間
 
-  async login(id, pass) {
-    const url = this.AUTH_GAS_URL
-      + '?action=adminLogin'
-      + '&id=' + encodeURIComponent(id)
-      + '&pass=' + encodeURIComponent(pass);
-    const res = await fetch(url, { redirect: 'follow' });
-    return res.json();
+  loginUrl(returnTo) {
+    return this.AUTH_GAS_URL + '?action=adminAuth&redirect=' + encodeURIComponent(returnTo);
   },
 
   acceptSession(data) {
-    if (!data || !data.success || !data.adminId) return false;
-    const adminId = String(data.adminId).trim();
-    if (!adminId) return false;
+    if (!data || !data.email) return false;
+    const email = String(data.email).toLowerCase().trim();
+    if (!email.endsWith('@' + this.ALLOWED_DOMAIN)) return false;
+    const adminId = String(data.adminId || email.split('@')[0]).trim();
+    const name = (data.name && String(data.name)) || adminId;
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify({
       adminId: adminId,
-      name: (data.name && String(data.name)) || adminId,
+      email: email,
+      name: name,
       savedAt: Date.now()
     }));
     return true;
@@ -43,7 +45,11 @@ const ADMIN_AUTH = {
   get() {
     try {
       const raw = JSON.parse(localStorage.getItem(this.STORAGE_KEY));
-      if (!raw || !raw.adminId) return null;
+      if (!raw || !raw.email) return null;
+      if (!String(raw.email).toLowerCase().endsWith('@' + this.ALLOWED_DOMAIN)) {
+        localStorage.removeItem(this.STORAGE_KEY);
+        return null;
+      }
       if (raw.savedAt && (Date.now() - raw.savedAt) > this.SESSION_MS) {
         localStorage.removeItem(this.STORAGE_KEY);
         return null;

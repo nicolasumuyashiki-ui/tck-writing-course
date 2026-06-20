@@ -154,6 +154,25 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
 
 <script src="js/admin-auth.js"></script>
 <script>
+  // 認証GAS から戻ってきた場合、URL の hash に email / adminId / name が乗っている
+  (function processIncomingAuth(){
+    try {
+      const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      const email = hash.get('admin_email');
+      if (email) {
+        const ok = ADMIN_AUTH.acceptSession({
+          email: email,
+          adminId: hash.get('admin_id') || '',
+          name: hash.get('admin_name') || ''
+        });
+        history.replaceState(null, '', location.pathname);
+        if (!ok) {
+          location.href = 'admin-login.html';
+        }
+      }
+    } catch(e){}
+  })();
+
   // 認証ゲート: ない／期限切れ／ドメイン不一致なら admin-login.html へ強制リダイレクト
   const ADMIN = ADMIN_AUTH.require();
   if (ADMIN) {
