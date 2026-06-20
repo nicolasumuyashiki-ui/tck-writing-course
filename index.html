@@ -135,6 +135,24 @@ body{justify-content:flex-start}
       </div>
     </div>
 
+    <div class="modal-overlay" id="adminIssueModal" onclick="if(event.target===this)closeAdminIssueModal()">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="adminIssueTitle">
+        <h2 id="adminIssueTitle">管理者ID／パスワードを発行</h2>
+        <p>TCK Workshop スタッフ専用です。<br><strong>@tckworkshop.co.jp</strong> のメールアドレスを入力してください。受講者IDと初期パスワード（または再発行パスワード）を当該メールアドレスに送信します。</p>
+        <div class="form-group" style="margin-bottom:8px">
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+            <input type="email" class="form-input" id="adminIssueEmail" placeholder="you@tckworkshop.co.jp" autocomplete="email">
+          </div>
+        </div>
+        <p style="font-size:.78em;color:var(--ink-500);margin-bottom:0">※ @tckworkshop.co.jp 以外のメールアドレスには送信されません。</p>
+        <div class="modal-actions">
+          <button type="button" class="modal-btn cancel" onclick="closeAdminIssueModal()">キャンセル</button>
+          <button type="button" class="modal-btn primary" id="adminIssueBtn" onclick="doAdminIssue()">送信</button>
+        </div>
+      </div>
+    </div>
+
     <div class="modal-overlay" id="resetModal" onclick="if(event.target===this)closeResetModal()">
       <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
         <h2 id="resetTitle">ID／パスワード再発行のご案内</h2>
@@ -148,20 +166,46 @@ body{justify-content:flex-start}
     </div>
     <div class="login-tm">TOEFL および TOEFL iBT は ETS の登録商標です。本教材は ETS の承認・推奨を受けたものではありません。<br>TOEFL and TOEFL iBT are registered trademarks of ETS. This product is not endorsed or approved by ETS.</div>
   </div>
-  <a href="admin-login.html" class="admin-link">管理者ログインはこちら →</a>
+  <button type="button" class="admin-link" onclick="openAdminIssueModal()" style="background:none;border:none;cursor:pointer">管理者の初回登録／パスワード発行 →</button>
  </div>
 </div>
 
 <script src="js/api.js"></script>
 <script src="js/auth.js"></script>
 <script>
-  if (Auth.get()) location.href = 'course-home.html';
+  if (Auth.get()) location.href = Auth.get().isAdmin ? 'admin.html' : 'course-home.html';
 
   document.getElementById('password').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
   document.getElementById('userId').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('password').focus(); });
 
   function openResetModal(){ document.getElementById('resetModal').classList.add('show'); }
   function closeResetModal(){ document.getElementById('resetModal').classList.remove('show'); }
+  function openAdminIssueModal(){ document.getElementById('adminIssueModal').classList.add('show'); setTimeout(()=>document.getElementById('adminIssueEmail').focus(),50); }
+  function closeAdminIssueModal(){ document.getElementById('adminIssueModal').classList.remove('show'); }
+  async function doAdminIssue(){
+    const email = document.getElementById('adminIssueEmail').value.trim();
+    const btn = document.getElementById('adminIssueBtn');
+    if (!email || !email.toLowerCase().endsWith('@tckworkshop.co.jp')) {
+      alert('@tckworkshop.co.jp のメールアドレスを入力してください。');
+      return;
+    }
+    btn.disabled = true; btn.textContent = '送信中…';
+    try {
+      const result = await API.issuePassword(email);
+      if (result.success) {
+        closeAdminIssueModal();
+        alert('パスワードを ' + email + ' に送信しました。\n受信メールの ID とパスワードでログインしてください。');
+        document.getElementById('userId').focus();
+      } else {
+        alert(result.message || 'パスワード発行に失敗しました。');
+      }
+    } catch(e) {
+      alert('通信エラー: ' + (e && e.message ? e.message : String(e)));
+    } finally {
+      btn.disabled = false; btn.textContent = '送信';
+    }
+  }
+  document.getElementById('adminIssueEmail').addEventListener('keydown', e => { if(e.key==='Enter') doAdminIssue(); });
   function openFirstLoginModal(){ document.getElementById('firstLoginModal').classList.add('show'); }
   function closeFirstLoginModal(){ document.getElementById('firstLoginModal').classList.remove('show'); }
   function openFirstLoginMail(){
@@ -195,8 +239,13 @@ body{justify-content:flex-start}
     try {
       const result = await API.login(uid, pass);
       if(result.success){
-        Auth.save({ id: result.userId, name: result.userName, plan: Number(result.plan) || 4 });
-        location.href = 'course-home.html';
+        Auth.save({
+          id: result.userId,
+          name: result.userName,
+          plan: Number(result.plan) || 4,
+          isAdmin: !!result.isAdmin
+        });
+        location.href = result.isAdmin ? 'admin.html' : 'course-home.html';
       } else {
         err.classList.add('show');
         errT.textContent = result.message || 'ログインに失敗しました。';

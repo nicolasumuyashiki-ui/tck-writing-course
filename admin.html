@@ -152,17 +152,20 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
   </div>
 </div>
 
-<script src="js/admin-auth.js"></script>
+<script src="js/auth.js"></script>
 <script>
-  // 認証ゲート: ない／期限切れなら admin-login.html へ強制リダイレクト
-  const ADMIN = ADMIN_AUTH.require();
-  if (ADMIN) {
+  // 認証ゲート: 未ログイン → index.html / ログイン済みだが isAdmin=false → course-home へ
+  const ADMIN = Auth.require();
+  if (ADMIN && !ADMIN.isAdmin) {
+    alert('このページは管理者専用です。');
+    location.href = 'course-home.html';
+  }
+  if (ADMIN && ADMIN.isAdmin) {
     const el = document.getElementById('adminBadge');
-    const safeName = (ADMIN.name || ADMIN.email).replace(/[<>&]/g, '');
-    let html = '';
-    html += '<span class="name">' + safeName + '</span>';
-    html += '<button class="btn-logout" type="button" onclick="ADMIN_AUTH.logout()">ログアウト</button>';
-    el.innerHTML = html;
+    const safeName = (ADMIN.name || ADMIN.id || '').replace(/[<>&]/g, '');
+    el.innerHTML =
+      '<span class="name">' + safeName + '</span>' +
+      '<button class="btn-logout" type="button" onclick="Auth.logout()">ログアウト</button>';
   }
 
   /* ===== 採点ロジック（移植） ===== */
