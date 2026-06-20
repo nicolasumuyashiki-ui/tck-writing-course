@@ -17,29 +17,30 @@ body{justify-content:flex-start}
 .logo-mark{display:inline-flex;align-items:center;gap:8px}
 .header-divider{width:1px;height:16px;background:var(--ink-200);margin:0 12px}
 .header-title{font-size:.88em;color:var(--ink-500);font-weight:500}
-.login-card{background:var(--white);border:1px solid var(--paper);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,40,23,.08);width:100%;max-width:440px;overflow:hidden;margin:24px auto}
+.login-card{background:var(--white);border:1px solid var(--paper);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,40,23,.08);width:100%;max-width:420px;overflow:hidden;margin:24px auto}
 .login-header{background:linear-gradient(135deg,var(--green-deep),var(--green-dark));padding:28px 28px 22px;text-align:center;color:#fff;position:relative;overflow:hidden}
 .login-header::before{content:"";position:absolute;top:0;right:0;width:160px;height:100%;background:radial-gradient(circle at top right, rgba(201,169,97,.18), transparent 70%);pointer-events:none}
 .login-header .brand-logo{height:44px;margin-bottom:14px;position:relative;z-index:1}
 .login-header .kicker{font-family:var(--font-jp);font-size:.74em;font-weight:700;letter-spacing:.04em;color:var(--gold);margin-bottom:8px;position:relative;z-index:1}
 .login-header h1{font-family:var(--font-jp);font-size:1.4em;font-weight:700;letter-spacing:.02em;margin-bottom:4px;position:relative;z-index:1}
 .login-header p{font-size:.84em;color:rgba(255,255,255,.78);position:relative;z-index:1;font-family:var(--font-jp);line-height:1.6}
-.login-body{padding:32px 28px 26px;text-align:center}
-.login-body .note{font-size:.85em;color:var(--ink-500);line-height:1.8;margin-bottom:24px;font-family:var(--font-jp)}
-.login-body .note code{font-family:var(--font-en);background:#FBF6EC;padding:1px 6px;border-radius:4px;font-size:.95em;color:var(--green-deep)}
-.btn-google{display:inline-flex;align-items:center;gap:12px;padding:11px 22px;background:#fff;color:#1f1f1f;border:1px solid #DADCE0;border-radius:8px;font-family:'Roboto','Manrope','Noto Sans JP',sans-serif;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;transition:all .15s;box-shadow:0 1px 2px rgba(0,0,0,.06)}
-.btn-google:hover{background:#F8F9FA;box-shadow:0 2px 6px rgba(0,0,0,.1)}
-.btn-google svg{width:18px;height:18px;flex-shrink:0}
-.btn-google[aria-disabled="true"]{opacity:.45;cursor:not-allowed;pointer-events:none}
-.btn-row{display:flex;justify-content:center;margin:6px 0 4px}
-.form-group{margin-bottom:16px;text-align:left}
+.login-body{padding:26px 28px 22px}
+.form-group{margin-bottom:16px}
 .form-group label{display:block;font-family:var(--font-jp);font-size:.82em;font-weight:700;color:var(--green);margin-bottom:6px;letter-spacing:.04em}
 .form-input{width:100%;padding:12px 14px 12px 42px;font-size:.95em;font-family:var(--font-en),var(--font-jp);border:1.5px solid var(--paper);border-radius:10px;background:var(--white);color:var(--ink-900);outline:none;transition:border-color .2s, box-shadow .2s}
 .form-input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(0,118,70,.12)}
 .form-input::placeholder{color:var(--ink-200)}
 .input-wrap{position:relative}
 .input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;fill:var(--ink-500);pointer-events:none}
-.back-link{display:block;margin-top:22px;text-align:center;font-size:.82em;color:var(--ink-500);text-decoration:underline;font-family:var(--font-jp)}
+.btn-login{width:100%;padding:13px;font-family:var(--font-jp);font-size:1em;font-weight:700;color:#fff;background:var(--green);border:none;border-radius:999px;cursor:pointer;transition:all .2s;margin-top:8px;letter-spacing:.04em}
+.btn-login:hover{background:var(--green-dark);box-shadow:0 6px 18px rgba(0,118,70,.22);transform:translateY(-1px)}
+.btn-login:disabled{background:var(--ink-200);color:var(--ink-500);cursor:not-allowed;transform:none;box-shadow:none}
+.error-msg{background:#FDF4F0;border:1px solid #E5B8A0;border-left:4px solid var(--terracotta);color:#8A3E24;border-radius:10px;padding:10px 14px;font-size:.85em;margin-bottom:16px;display:none;align-items:center;gap:8px}
+.error-msg.show{display:flex}
+.error-msg svg{width:16px;height:16px;fill:var(--terracotta);flex-shrink:0}
+.spinner{display:inline-block;width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.back-link{display:block;margin-top:16px;text-align:center;font-size:.82em;color:var(--ink-500);text-decoration:underline;font-family:var(--font-jp)}
 .back-link:hover{color:var(--green)}
 .login-footer{border-top:1px solid var(--paper);padding:12px 28px 14px;text-align:center;font-size:.78em;color:var(--ink-500);font-family:var(--font-jp);letter-spacing:.02em}
 </style>
@@ -61,6 +62,7 @@ body{justify-content:flex-start}
       <p>採点・バンドスコア計算ツール<br>TCK Workshop スタッフ専用</p>
     </div>
     <div class="login-body">
+<<<<<<< Updated upstream
       <p class="note">サインインに使用する <code>@tckworkshop.co.jp</code> メールアドレスを入力してください。<br>2 回目以降は自動で保存されます。</p>
 
       <div class="form-group">
@@ -69,14 +71,30 @@ body{justify-content:flex-start}
           <svg class="input-icon" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
           <input type="email" class="form-input" id="adminEmail" placeholder="you@tckworkshop.co.jp" autocomplete="username" autofocus>
         </div>
+=======
+      <div class="error-msg" id="errorMsg">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        <span id="errorText"></span>
+>>>>>>> Stashed changes
       </div>
 
-      <div class="btn-row">
-        <a id="signinBtn" class="btn-google" href="#" aria-disabled="true">
-          <svg viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
-          <span>このメールでサインイン</span>
-        </a>
+      <div class="form-group">
+        <label for="adminId">管理者ID</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <input type="text" class="form-input" id="adminId" placeholder="管理者ID" autocomplete="username" autofocus>
+        </div>
       </div>
+      <div class="form-group">
+        <label for="adminPassword">パスワード</label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+          <input type="password" class="form-input" id="adminPassword" placeholder="パスワード" autocomplete="current-password">
+        </div>
+      </div>
+      <button class="btn-login" id="loginBtn" onclick="doAdminLogin()">
+        <span id="loginBtnText">ログイン</span>
+      </button>
 
       <a href="index.html" class="back-link">← 受講者ログインへ戻る</a>
     </div>
@@ -88,38 +106,39 @@ body{justify-content:flex-start}
 <script>
   if (ADMIN_AUTH.get()) location.href = 'admin.html';
 
-  const emailInput = document.getElementById('adminEmail');
-  const signinBtn = document.getElementById('signinBtn');
-  const returnTo = location.origin + location.pathname.replace(/admin-login\.html$/, 'admin.html');
+  document.getElementById('adminPassword').addEventListener('keydown', e => { if (e.key === 'Enter') doAdminLogin(); });
+  document.getElementById('adminId').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('adminPassword').focus(); });
 
-  /* 前回保存したメールがあれば自動入力 */
-  emailInput.value = ADMIN_AUTH.getEmailHint();
-  updateButton();
+  async function doAdminLogin(){
+    const id   = document.getElementById('adminId').value.trim();
+    const pass = document.getElementById('adminPassword').value;
+    const btn  = document.getElementById('loginBtn');
+    const txt  = document.getElementById('loginBtnText');
+    const err  = document.getElementById('errorMsg');
+    const errT = document.getElementById('errorText');
 
-  emailInput.addEventListener('input', updateButton);
-  emailInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); signinBtn.click(); }
-  });
+    if (!id || !pass) { err.classList.add('show'); errT.textContent = 'IDとパスワードを入力してください。'; return; }
 
-  signinBtn.addEventListener('click', e => {
-    e.preventDefault();
-    const email = emailInput.value.trim();
-    if (!email || !email.includes('@')) {
-      alert('メールアドレスを入力してください。');
-      return;
+    err.classList.remove('show');
+    btn.disabled = true;
+    txt.innerHTML = '<span class="spinner"></span>ログイン中…';
+
+    try {
+      const result = await ADMIN_AUTH.login(id, pass);
+      if (result.success && ADMIN_AUTH.acceptSession(result)) {
+        location.href = 'admin.html';
+        return;
+      }
+      err.classList.add('show');
+      errT.textContent = result.message || 'ログインに失敗しました。';
+      btn.disabled = false; txt.textContent = 'ログイン';
+      document.getElementById('adminPassword').value = '';
+      document.getElementById('adminPassword').focus();
+    } catch (e) {
+      err.classList.add('show');
+      errT.textContent = '通信エラー: ' + (e && e.message ? e.message : String(e));
+      btn.disabled = false; txt.textContent = 'ログイン';
     }
-    if (!email.toLowerCase().endsWith('@tckworkshop.co.jp')) {
-      alert('@tckworkshop.co.jp のメールアドレスでサインインしてください。');
-      return;
-    }
-    ADMIN_AUTH.saveEmailHint(email);
-    location.href = ADMIN_AUTH.loginUrl(returnTo, email);
-  });
-
-  function updateButton(){
-    const v = emailInput.value.trim();
-    const ok = v.length > 3 && v.includes('@');
-    signinBtn.setAttribute('aria-disabled', ok ? 'false' : 'true');
   }
 </script>
 <script defer src="../js/tm-footer.js"></script>
