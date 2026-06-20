@@ -1,49 +1,72 @@
 /**
- * 管理者セッション管理（adminId + password 方式・PR #24 系に復帰）
+ * 管理者セッション管理（email + password 方式・自動登録対応）
  *
- * Google サインイン方式は GAS の制約（Workspace 設定／multi-account
- * 取扱／OAuth 未確認警告）により安定運用が難しかったため、確実に動く
- * 手動 ID+password 方式に戻す。
+ * 設計:
+ *  - admin-login.html で email + password を入力 → GAS の admins シート
+ *    で照合
+ *  - 初回ログイン／パスワード忘れは "初回ログイン" モーダルから
+ *    @tckworkshop.co.jp のアドレスを入力 → GAS がランダムパスワードを
+ *    発行して当該アドレスにメール送信
+ *  - @tckworkshop.co.jp 以外には絶対にパスワードを送らない＝メール所有
+ *    確認でドメイン制限を実現
  *
  * セキュリティ:
- *  - admins シートで adminId + password 一致を確認
- *  - 同シートの email 列が @tckworkshop.co.jp ドメインで終わることを
- *    GAS で検証（運用ミス防止 + 漏洩時の被害最小化）
+ *  - GAS 側で email.endsWith('@tckworkshop.co.jp') を厳格チェック
  *  - localStorage の email も読み込み時に再チェック
  *  - 8 時間で自動失効
  */
 const ADMIN_AUTH = {
-  // 既存の認証 GAS（"Anyone" デプロイ・受講者ログインと同じ URL）
   AUTH_GAS_URL: 'https://script.google.com/macros/s/AKfycbwXSB3bHsGwuFxZKcIsF6PBC332ZUVSQ10tWC7w-dL3YMa2ZLtdFyL50tTJ99EW8T9xag/exec',
   ALLOWED_DOMAIN: 'tckworkshop.co.jp',
   STORAGE_KEY: 'tck_admin',
+  EMAIL_KEY: 'tck_admin_email',
   SESSION_MS: 8 * 60 * 60 * 1000, // 8 時間
 
-  async login(id, pass) {
+  async login(email, pass) {
     const url = this.AUTH_GAS_URL
       + '?action=adminLogin'
-      + '&id=' + encodeURIComponent(id)
+      + '&email=' + encodeURIComponent(email)
       + '&pass=' + encodeURIComponent(pass);
     const res = await fetch(url, { redirect: 'follow' });
     return res.json();
   },
 
+  async issuePassword(email) {
+    const url = this.AUTH_GAS_URL
+      + '?action=adminIssuePassword'
+      + '&email=' + encodeURIComponent(email);
+    const res = await fetch(url, { redirect: 'follow' });
+    return res.json();
+  },
+
   acceptSession(data) {
-    if (!data || !data.success || !data.adminId) return false;
-    const adminId = String(data.adminId).trim();
-    if (!adminId) return false;
+    if (!data || !data.success || !data.email) return false;
+    const email = String(data.email).toLowerCase().trim();
+    if (!email.endsWith('@' + this.ALLOWED_DOMAIN)) return false;
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify({
-      adminId: adminId,
-      name: (data.name && String(data.name)) || adminId,
+      email: email,
+      name: (data.name && String(data.name)) || email.split('@')[0],
       savedAt: Date.now()
     }));
     return true;
   },
 
+  saveEmail(email) {
+    try { localStorage.setItem(this.EMAIL_KEY, String(email || '').trim()); } catch {}
+  },
+
+  getSavedEmail() {
+    try { return localStorage.getItem(this.EMAIL_KEY) || ''; } catch { return ''; }
+  },
+
   get() {
     try {
       const raw = JSON.parse(localStorage.getItem(this.STORAGE_KEY));
-      if (!raw || !raw.adminId) return null;
+      if (!raw || !raw.email) return null;
+      if (!String(raw.email).toLowerCase().endsWith('@' + this.ALLOWED_DOMAIN)) {
+        localStorage.removeItem(this.STORAGE_KEY);
+        return null;
+      }
       if (raw.savedAt && (Date.now() - raw.savedAt) > this.SESSION_MS) {
         localStorage.removeItem(this.STORAGE_KEY);
         return null;

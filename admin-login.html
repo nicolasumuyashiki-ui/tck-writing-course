@@ -38,11 +38,27 @@ body{justify-content:flex-start}
 .error-msg{background:#FDF4F0;border:1px solid #E5B8A0;border-left:4px solid var(--terracotta);color:#8A3E24;border-radius:10px;padding:10px 14px;font-size:.85em;margin-bottom:16px;display:none;align-items:center;gap:8px}
 .error-msg.show{display:flex}
 .error-msg svg{width:16px;height:16px;fill:var(--terracotta);flex-shrink:0}
+.success-msg{background:#EBF7F0;border:1px solid #9FD4B5;border-left:4px solid var(--green);color:#0E5530;border-radius:10px;padding:10px 14px;font-size:.85em;margin-bottom:16px;display:none;line-height:1.6;font-family:var(--font-jp)}
+.success-msg.show{display:block}
 .spinner{display:inline-block;width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
+.first-link{display:block;width:100%;margin-top:14px;text-align:center;background:none;border:none;font-family:var(--font-jp);font-size:.82em;color:var(--green);text-decoration:underline;cursor:pointer;padding:4px}
+.first-link:hover{color:var(--green-dark)}
 .back-link{display:block;margin-top:16px;text-align:center;font-size:.82em;color:var(--ink-500);text-decoration:underline;font-family:var(--font-jp)}
 .back-link:hover{color:var(--green)}
 .login-footer{border-top:1px solid var(--paper);padding:12px 28px 14px;text-align:center;font-size:.78em;color:var(--ink-500);font-family:var(--font-jp);letter-spacing:.02em}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,40,23,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
+.modal-overlay.show{display:flex}
+.modal-card{background:#fff;border-radius:14px;max-width:420px;width:100%;padding:24px 24px 20px;box-shadow:0 12px 40px rgba(0,40,23,.25);font-family:var(--font-jp)}
+.modal-card h2{font-size:1.1em;font-weight:700;color:var(--green-deep);margin-bottom:10px}
+.modal-card p{font-size:.88em;color:var(--ink-500);line-height:1.7;margin-bottom:14px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.modal-btn{padding:10px 18px;font-family:var(--font-jp);font-size:.9em;font-weight:700;border-radius:999px;cursor:pointer;border:none;letter-spacing:.04em}
+.modal-btn.cancel{background:var(--paper);color:var(--ink-500)}
+.modal-btn.cancel:hover{background:#ead9be}
+.modal-btn.primary{background:var(--green);color:#fff}
+.modal-btn.primary:hover{background:var(--green-dark)}
+.modal-btn.primary:disabled{background:var(--ink-200);color:var(--ink-500);cursor:not-allowed}
 </style>
 </head>
 <body>
@@ -62,27 +78,17 @@ body{justify-content:flex-start}
       <p>採点・バンドスコア計算ツール<br>TCK Workshop スタッフ専用</p>
     </div>
     <div class="login-body">
-<<<<<<< Updated upstream
-      <p class="note">サインインに使用する <code>@tckworkshop.co.jp</code> メールアドレスを入力してください。<br>2 回目以降は自動で保存されます。</p>
+      <div class="error-msg" id="errorMsg">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        <span id="errorText"></span>
+      </div>
+      <div class="success-msg" id="successMsg"></div>
 
       <div class="form-group">
         <label for="adminEmail">メールアドレス</label>
         <div class="input-wrap">
           <svg class="input-icon" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
           <input type="email" class="form-input" id="adminEmail" placeholder="you@tckworkshop.co.jp" autocomplete="username" autofocus>
-        </div>
-=======
-      <div class="error-msg" id="errorMsg">
-        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-        <span id="errorText"></span>
->>>>>>> Stashed changes
-      </div>
-
-      <div class="form-group">
-        <label for="adminId">管理者ID</label>
-        <div class="input-wrap">
-          <svg class="input-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-          <input type="text" class="form-input" id="adminId" placeholder="管理者ID" autocomplete="username" autofocus>
         </div>
       </div>
       <div class="form-group">
@@ -95,6 +101,7 @@ body{justify-content:flex-start}
       <button class="btn-login" id="loginBtn" onclick="doAdminLogin()">
         <span id="loginBtnText">ログイン</span>
       </button>
+      <button type="button" class="first-link" onclick="openIssueModal()">初回ログイン／パスワードを忘れた方はこちら</button>
 
       <a href="index.html" class="back-link">← 受講者ログインへ戻る</a>
     </div>
@@ -102,42 +109,119 @@ body{justify-content:flex-start}
   </div>
 </div>
 
+<div class="modal-overlay" id="issueModal" onclick="if(event.target===this)closeIssueModal()">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="issueTitle">
+    <h2 id="issueTitle">パスワードを発行</h2>
+    <p><strong>@tckworkshop.co.jp</strong> のメールアドレスを入力してください。<br>初期パスワード（または再発行パスワード）を当該メールアドレスに送信します。</p>
+    <div class="form-group" style="margin-bottom:8px">
+      <div class="input-wrap">
+        <svg class="input-icon" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        <input type="email" class="form-input" id="issueEmail" placeholder="you@tckworkshop.co.jp" autocomplete="email">
+      </div>
+    </div>
+    <p style="font-size:.78em;color:var(--ink-500);margin-bottom:0">※ @tckworkshop.co.jp ドメイン以外のメールアドレスには送信されません。</p>
+    <div class="modal-actions">
+      <button type="button" class="modal-btn cancel" onclick="closeIssueModal()">キャンセル</button>
+      <button type="button" class="modal-btn primary" id="issueBtn" onclick="doIssuePassword()">送信</button>
+    </div>
+  </div>
+</div>
+
 <script src="js/admin-auth.js"></script>
 <script>
   if (ADMIN_AUTH.get()) location.href = 'admin.html';
 
-  document.getElementById('adminPassword').addEventListener('keydown', e => { if (e.key === 'Enter') doAdminLogin(); });
-  document.getElementById('adminId').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('adminPassword').focus(); });
+  const emailInput = document.getElementById('adminEmail');
+  const passInput = document.getElementById('adminPassword');
+  emailInput.value = ADMIN_AUTH.getSavedEmail();
+
+  passInput.addEventListener('keydown', e => { if (e.key === 'Enter') doAdminLogin(); });
+  emailInput.addEventListener('keydown', e => { if (e.key === 'Enter') passInput.focus(); });
 
   async function doAdminLogin(){
-    const id   = document.getElementById('adminId').value.trim();
-    const pass = document.getElementById('adminPassword').value;
-    const btn  = document.getElementById('loginBtn');
-    const txt  = document.getElementById('loginBtnText');
-    const err  = document.getElementById('errorMsg');
+    const email = emailInput.value.trim();
+    const pass = passInput.value;
+    const btn = document.getElementById('loginBtn');
+    const txt = document.getElementById('loginBtnText');
+    const err = document.getElementById('errorMsg');
     const errT = document.getElementById('errorText');
 
-    if (!id || !pass) { err.classList.add('show'); errT.textContent = 'IDとパスワードを入力してください。'; return; }
+    document.getElementById('successMsg').classList.remove('show');
+
+    if (!email || !pass) { err.classList.add('show'); errT.textContent = 'メールアドレスとパスワードを入力してください。'; return; }
+    if (!email.toLowerCase().endsWith('@' + ADMIN_AUTH.ALLOWED_DOMAIN)) {
+      err.classList.add('show');
+      errT.textContent = '@' + ADMIN_AUTH.ALLOWED_DOMAIN + ' のメールアドレスでログインしてください。';
+      return;
+    }
 
     err.classList.remove('show');
     btn.disabled = true;
     txt.innerHTML = '<span class="spinner"></span>ログイン中…';
 
     try {
-      const result = await ADMIN_AUTH.login(id, pass);
+      const result = await ADMIN_AUTH.login(email, pass);
       if (result.success && ADMIN_AUTH.acceptSession(result)) {
+        ADMIN_AUTH.saveEmail(email);
         location.href = 'admin.html';
         return;
       }
       err.classList.add('show');
       errT.textContent = result.message || 'ログインに失敗しました。';
       btn.disabled = false; txt.textContent = 'ログイン';
-      document.getElementById('adminPassword').value = '';
-      document.getElementById('adminPassword').focus();
+      passInput.value = '';
+      passInput.focus();
     } catch (e) {
       err.classList.add('show');
       errT.textContent = '通信エラー: ' + (e && e.message ? e.message : String(e));
       btn.disabled = false; txt.textContent = 'ログイン';
+    }
+  }
+
+  function openIssueModal(){
+    const issueEmail = document.getElementById('issueEmail');
+    issueEmail.value = emailInput.value.trim();
+    document.getElementById('issueModal').classList.add('show');
+    setTimeout(()=>issueEmail.focus(), 50);
+  }
+  function closeIssueModal(){
+    document.getElementById('issueModal').classList.remove('show');
+  }
+  document.getElementById('issueEmail').addEventListener('keydown', e => { if (e.key === 'Enter') doIssuePassword(); });
+  document.addEventListener('keydown', e => { if(e.key==='Escape') closeIssueModal(); });
+
+  async function doIssuePassword(){
+    const email = document.getElementById('issueEmail').value.trim();
+    const btn = document.getElementById('issueBtn');
+    const err = document.getElementById('errorMsg');
+    const errT = document.getElementById('errorText');
+    const ok = document.getElementById('successMsg');
+
+    if (!email || !email.toLowerCase().endsWith('@' + ADMIN_AUTH.ALLOWED_DOMAIN)) {
+      alert('@' + ADMIN_AUTH.ALLOWED_DOMAIN + ' のメールアドレスを入力してください。');
+      return;
+    }
+
+    btn.disabled = true; btn.textContent = '送信中…';
+    try {
+      const result = await ADMIN_AUTH.issuePassword(email);
+      closeIssueModal();
+      if (result.success) {
+        err.classList.remove('show');
+        ok.classList.add('show');
+        ok.innerHTML = '✅ <strong>' + email + '</strong> にパスワードを送信しました。<br>メールが届くまで 1〜2 分程度かかる場合があります。届いたパスワードでログインしてください。';
+        emailInput.value = email;
+        ADMIN_AUTH.saveEmail(email);
+        passInput.focus();
+      } else {
+        err.classList.add('show');
+        errT.textContent = result.message || 'パスワード発行に失敗しました。';
+      }
+    } catch (e) {
+      err.classList.add('show');
+      errT.textContent = '通信エラー: ' + (e && e.message ? e.message : String(e));
+    } finally {
+      btn.disabled = false; btn.textContent = '送信';
     }
   }
 </script>
