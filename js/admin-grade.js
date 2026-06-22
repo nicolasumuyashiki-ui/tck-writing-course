@@ -371,14 +371,13 @@ const AdminGrade = (() => {
 '*{margin:0;padding:0;box-sizing:border-box;}' +
 'html,body{background:#e8e8e3;font-family:"Manrope","Noto Sans JP",sans-serif;color:var(--ink-900);}' +
 '@page{size:A4;margin:0;}@media print{html,body{background:#fff;}}' +
-'.page{width:210mm;height:297mm;margin:24px auto;padding:18mm 18mm 22mm;background:#fff;box-shadow:0 8px 32px rgba(0,40,23,.12);position:relative;display:flex;flex-direction:column;overflow:hidden;page-break-after:always;}' +
-'.score-table,.feedback-block,.notes-card,.corr-table,.calc-box,.student-card,.band-result{page-break-inside:avoid;break-inside:avoid;}' +
+'.page{width:210mm;min-height:297mm;margin:24px auto;padding:18mm 18mm 22mm;background:#fff;box-shadow:0 8px 32px rgba(0,40,23,.12);position:relative;page-break-after:always;}' +
 '.page:last-child{page-break-after:avoid;}' +
-'.page-header{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--paper);margin-bottom:14px;flex-shrink:0;}' +
+'.page-header{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--paper);margin-bottom:14px;}' +
 '.page-header .brand{font-size:11px;letter-spacing:.14em;color:var(--green);font-weight:800;text-transform:uppercase;}' +
 '.page-header .meta{margin-left:auto;font-size:11px;color:var(--ink-500);}' +
 '.page-footer{position:absolute;bottom:10mm;left:18mm;right:18mm;padding-top:6px;border-top:1px solid var(--paper);font-size:9px;color:#8a8f8c;display:flex;justify-content:space-between;}' +
-'.cover{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;}' +
+'.cover{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:40mm;}' +
 '.cover .kicker{font-size:13px;letter-spacing:.18em;color:var(--gold);font-weight:800;text-transform:uppercase;margin-bottom:12px;}' +
 '.cover h1{font-size:30px;font-weight:700;color:var(--green-deep);margin-bottom:6px;line-height:1.3;}' +
 '.cover .subtitle{font-size:13px;color:var(--ink-500);margin-bottom:40px;}' +
@@ -423,6 +422,7 @@ const AdminGrade = (() => {
 '.signoff b{color:var(--green-deep);}' +
 '</style></head><body>' +
 
+  /* === Page 1: Cover — title + student card のみ === */
   '<div class="page">' +
     '<div class="page-header"><span class="brand">TCK Workshop ライティング添削コース</span><span class="meta">添削結果 / RETURN</span></div>' +
     '<div class="cover">' +
@@ -436,17 +436,18 @@ const AdminGrade = (() => {
         '<div class="row"><span class="label">返却日</span><span class="value">' + esc(dateR) + '</span></div>' +
         '<div class="row"><span class="label">担当講師</span><span class="value">' + esc(adminName) + ' (TCK Workshop)</span></div>' +
       '</div>' +
-      '<div class="band-result">' +
-        '<div class="label">合算バンドスコア</div>' +
-        '<div class="number"><span class="big">' + band.toFixed(1) + '</span><span class="of">/ 6.0</span></div>' +
-        '<div class="desc">' + esc(bandDesc) + '</div>' +
-      '</div>' +
     '</div>' +
-    '<div class="page-footer"><div>TOEFL および TOEFL iBT は ETS の登録商標です。本教材は ETS の承認・推奨を受けたものではありません。</div><div>1 / 4</div></div>' +
+    '<div class="page-footer"><div>TOEFL および TOEFL iBT は ETS の登録商標です。本教材は ETS の承認・推奨を受けたものではありません。</div><div>1 / 5</div></div>' +
   '</div>' +
 
+  /* === Page 2: 結果 — band-result + 素点テーブル === */
   '<div class="page">' +
     '<div class="page-header"><span class="brand">TCK Workshop ライティング添削コース</span><span class="meta">Set ' + esc(setNo) + ' / ' + esc(name) + ' 様</span></div>' +
+    '<div style="text-align:center;margin-bottom:18px"><div class="band-result" style="display:inline-block">' +
+      '<div class="label">合算バンドスコア</div>' +
+      '<div class="number"><span class="big">' + band.toFixed(1) + '</span><span class="of">/ 6.0</span></div>' +
+      '<div class="desc">' + esc(bandDesc) + '</div>' +
+    '</div></div>' +
     '<div class="section-title"><span class="num">1</span>各タスクの素点</div>' +
     '<table class="score-table"><thead><tr><th style="width:38%">タスク</th><th style="width:32%">素点</th><th style="width:30%;text-align:right">0〜5 換算</th></tr></thead><tbody>' +
       '<tr><td><span class="task">Build a Sentence</span><br><span class="raw">並べ替え 10 問・自動採点</span></td>' +
@@ -462,33 +463,35 @@ const AdminGrade = (() => {
     '</tbody></table>' +
     '<div class="calc-box"><b>計算式（同梱の「採点基準と計算方法 PDF」もご参照ください）：</b><br>' +
       'バンドスコア = <code>平均（0〜5） + 1</code> を 0.5 刻みで四捨五入 → <b>' + band.toFixed(1) + ' / 6.0</b></div>' +
+    '<div class="page-footer"><div>TOEFL および TOEFL iBT は ETS の登録商標です。本教材は ETS の承認・推奨を受けたものではありません。</div><div>2 / 5</div></div>' +
+  '</div>' +
 
+  /* === Page 3: 総評 === */
+  '<div class="page">' +
+    '<div class="page-header"><span class="brand">TCK Workshop ライティング添削コース</span><span class="meta">Set ' + esc(setNo) + ' / ' + esc(name) + ' 様</span></div>' +
     '<div class="section-title"><span class="num">2</span>総評</div>' +
     '<div class="feedback-block"><h3>WRITE AN EMAIL</h3><div class="sub">' + eS.toFixed(1) + ' / 5</div><div class="body">' + esc(emailSummary || '（総評未入力）') + '</div></div>' +
     '<div class="feedback-block"><h3>ACADEMIC DISCUSSION</h3><div class="sub">' + aS.toFixed(1) + ' / 5</div><div class="body">' + esc(adSummary || '（総評未入力）') + '</div></div>' +
-
-    '<div class="page-footer"><div>TOEFL および TOEFL iBT は ETS の登録商標です。本教材は ETS の承認・推奨を受けたものではありません。</div><div>2 / 4</div></div>' +
+    '<div class="page-footer"><div>TOEFL および TOEFL iBT は ETS の登録商標です。本教材は ETS の承認・推奨を受けたものではありません。</div><div>3 / 5</div></div>' +
   '</div>' +
 
+  /* === Page 4: Email 添削 === */
   '<div class="page">' +
     '<div class="page-header"><span class="brand">TCK Workshop ライティング添削コース</span><span class="meta">Set ' + esc(setNo) + ' / ' + esc(name) + ' 様</span></div>' +
     '<div class="section-title"><span class="num">3</span>原文と添削コメント — Write an Email</div>' +
     (renderCorrTable(state.email.corrections, 'email') || '<p style="color:#5A6861;font-size:11.5px;margin-bottom:14px">添削対象の文がありません。</p>') +
-
-    '<div class="page-footer"><div>TOEFL および TOEFL iBT は ETS の登録商標です。本教材は ETS の承認・推奨を受けたものではありません。</div><div>3 / 4</div></div>' +
+    '<div class="page-footer"><div>TOEFL および TOEFL iBT は ETS の登録商標です。本教材は ETS の承認・推奨を受けたものではありません。</div><div>4 / 5</div></div>' +
   '</div>' +
 
+  /* === Page 5: AD 添削 + 注意ポイント + signoff === */
   '<div class="page">' +
     '<div class="page-header"><span class="brand">TCK Workshop ライティング添削コース</span><span class="meta">Set ' + esc(setNo) + ' / ' + esc(name) + ' 様</span></div>' +
     '<div class="section-title"><span class="num">4</span>原文と添削コメント — Academic Discussion</div>' +
     (renderCorrTable(state.ad.corrections, 'ad') || '<p style="color:#5A6861;font-size:11.5px;margin-bottom:14px">添削対象の文がありません。</p>') +
-
     '<div class="section-title" style="margin-top:14px"><span class="num">5</span>次回までに意識すること</div>' +
     '<div class="notes-card"><h3>注意ポイント</h3>' + notesHTML + '</div>' +
-
     '<div class="signoff">引き続きお取組みをお待ちしております。<br><b>TCK Workshop ライティング添削コース</b> / 担当：' + esc(adminName) + '</div>' +
-
-    '<div class="page-footer"><div>TOEFL および TOEFL iBT は ETS の登録商標です。本教材は ETS の承認・推奨を受けたものではありません。</div><div>4 / 4</div></div>' +
+    '<div class="page-footer"><div>TOEFL および TOEFL iBT は ETS の登録商標です。本教材は ETS の承認・推奨を受けたものではありません。</div><div>5 / 5</div></div>' +
   '</div>' +
 
 '</body></html>'
