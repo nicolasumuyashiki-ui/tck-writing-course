@@ -18,5 +18,11 @@ const API = {
     const url = `${API_URL}?action=getUser&id=${encodeURIComponent(id)}`;
     const res = await fetch(url, { redirect: 'follow' });
     return res.json();
+  },
+
+  async issuePassword(email) {
+    const url = `${API_URL}?action=issuePassword&email=${encodeURIComponent(email)}`;
+    const res = await fetch(url, { redirect: 'follow' });
+    return res.json();
   }
 };
