@@ -23,7 +23,7 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
 .admin-badge .btn-logout:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.7);}
 
 .quick-bar{max-width:900px;margin:18px auto 0;padding:0 16px;}
-.quick-btn{display:flex;align-items:center;gap:14px;background:#fff;border:1.5px solid #F5E9D3;border-left:4px solid #C9A961;border-radius:12px;padding:12px 18px;text-decoration:none;color:#0F1511;box-shadow:0 1px 4px rgba(0,40,23,.04);transition:all .15s;}
+.quick-btn{display:flex;width:100%;align-items:center;gap:14px;background:#fff;border:1.5px solid #F5E9D3;border-left:4px solid #C9A961;border-radius:12px;padding:12px 18px;text-decoration:none;color:#0F1511;box-shadow:0 1px 4px rgba(0,40,23,.04);transition:all .15s;}
 .quick-btn:hover{border-color:#007646;border-left-color:#007646;box-shadow:0 6px 18px rgba(0,118,70,.10);transform:translateY(-1px);}
 .quick-btn .qb-ico{font-size:22px;flex-shrink:0;}
 .quick-btn .qb-text{flex:1;font-size:13px;line-height:1.55;text-align:left;}
@@ -32,9 +32,10 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
 .quick-btn .qb-arrow{font-size:18px;color:#5A6861;flex-shrink:0;}
 .quick-btn:hover .qb-arrow{color:#007646;}
 
-.wrap{max-width:900px;margin:0 auto;padding:24px 16px 80px;}
+.wrap{max-width:900px;margin:0 auto;padding:24px 16px 80px;text-align:center;}
+.wrap > .card, .wrap > .action-bar{text-align:left;}
 h1.page-title{font-size:22px;font-weight:700;margin-bottom:6px;color:#002817;}
-p.page-sub{font-size:13px;color:#5A6861;margin-bottom:22px;}
+p.page-sub{font-size:13px;color:#5A6861;margin-bottom:22px;max-width:680px;margin-left:auto;margin-right:auto;}
 
 .card{background:#fff;border:1px solid #F5E9D3;border-radius:12px;box-shadow:0 1px 4px rgba(0,40,23,.04);margin-bottom:18px;overflow:hidden;}
 .card-head{display:flex;align-items:center;gap:10px;padding:14px 22px;border-bottom:1px solid #F5E9D3;background:#FBF6EC;}
@@ -116,7 +117,7 @@ p.page-sub{font-size:13px;color:#5A6861;margin-bottom:22px;}
 .computed-band .band-of{font-size:18px;font-weight:600;color:#9FB3AA;margin-left:4px;}
 .computed-band .band-desc{font-size:12px;color:#D6DAD7;margin-top:6px;}
 
-.action-bar{position:sticky;bottom:0;background:rgba(251,246,236,.96);backdrop-filter:blur(8px);border-top:1px solid #F5E9D3;padding:14px 20px;margin:24px -16px 0;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;align-items:center;}
+.action-bar{position:sticky;bottom:0;background:rgba(251,246,236,.96);backdrop-filter:blur(8px);border-top:1px solid #F5E9D3;border-radius:0 0 12px 12px;padding:14px 20px;margin:24px 0 0;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;align-items:center;}
 .action-bar .gap{flex:1;}
 
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#002817;color:#fff;padding:11px 22px;border-radius:999px;font-size:13px;box-shadow:0 8px 24px rgba(0,40,23,.3);z-index:1100;opacity:0;transition:opacity .2s;pointer-events:none;}
