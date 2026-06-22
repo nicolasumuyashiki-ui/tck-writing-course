@@ -28,6 +28,8 @@ const EMAIL_PROMPT_TEMPLATE =
   - "original": 受講者の原文をそのまま
   - "revised":  添削後の自然な英文
   - "comment":  日本語で 1〜2 行・なぜ直したか / 学習ポイント
+- "notes" は「次回までに意識して欲しいこと」を 1〜2 個（このタスク = Email 特有の学習ポイントに絞ること）。
+  - 各要素は短い日本語の一文（30〜60字目安・敬体・命令形は避ける）。
 
 \`\`\`json
 {
@@ -39,6 +41,10 @@ const EMAIL_PROMPT_TEMPLATE =
       "revised":  "I would like to apply for the room.",
       "comment":  "would like to を使うとフォーマル度が上がり、依頼メールに適した丁寧さになります。"
     }
+  ],
+  "notes": [
+    "Email では Yours sincerely / Best regards の使い分けに注意して、宛先のフォーマル度に合わせて選びましょう。",
+    "Also や And で接続するのは口語寄りなので、In addition / Furthermore など書き言葉のつなぎ語を意識的に使ってみてください。"
   ]
 }
 \`\`\`
@@ -61,6 +67,8 @@ const AD_PROMPT_TEMPLATE =
 - "score" は 0.0 から 5.0 まで 0.5 刻みの数値。
 - "summary" は受講者宛の総評（120〜220字程度・敬体）。
 - "corrections" は最大 8 つ。原文→修正文→コメント（日本語）。
+- "notes" は「次回までに意識して欲しいこと」を 1〜2 個（このタスク = Academic Discussion 特有の学習ポイントに絞ること）。
+  - 各要素は短い日本語の一文（30〜60字目安・敬体・命令形は避ける）。
 
 \`\`\`json
 {
@@ -72,6 +80,10 @@ const AD_PROMPT_TEMPLATE =
       "revised":  "I agree with Andrew's opinion.",
       "comment":  "所有格 's が必要です。Andrew that he 〜 のように具体的に何に同意したかを続けると更に説得力が上がります。"
     }
+  ],
+  "notes": [
+    "Academic Discussion では必ず他の学生の意見を 1 度引用してから自分の主張を展開するようにしましょう。",
+    "具体例は「いつ・どこで・どのくらい」まで踏み込むと評価が上がります。"
   ]
 }
 \`\`\`
@@ -82,8 +94,8 @@ __ANSWER__`;
 const AdminGrade = (() => {
   /* ---------- state ---------- */
   const state = {
-    email: { score: null, summary: '', corrections: [] },
-    ad:    { score: null, summary: '', corrections: [] }
+    email: { score: null, summary: '', corrections: [], notes: [] },
+    ad:    { score: null, summary: '', corrections: [], notes: [] }
   };
 
   /* ---------- utils ---------- */
@@ -218,21 +230,35 @@ const AdminGrade = (() => {
           comment:  String(c.comment  || '')
         }))
       : [];
+    state[type].notes = Array.isArray(data.notes)
+      ? data.notes.map(n => String(n || '').trim()).filter(Boolean)
+      : [];
 
     $(type + 'Parsed').style.display = 'block';
     $(type + 'Score').value = score.toFixed(1);
     $(type + 'Summary').value = state[type].summary;
     renderCorrections(type);
+    rebuildNotes();
     recompute();
     showToast('取り込み完了：必要に応じて編集してください');
   };
 
+  /* notes textarea = email.notes + ad.notes を ・ プレフィックスで結合 */
+  const rebuildNotes = () => {
+    const lines = [].concat(
+      state.email.notes.map(n => '・' + n),
+      state.ad.notes.map(n => '・' + n)
+    );
+    if (lines.length) $('notes').value = lines.join('\n');
+  };
+
   const clearIngest = type => {
     $(type + 'ClaudeOut').value = '';
-    state[type] = { score: null, summary: '', corrections: [] };
+    state[type] = { score: null, summary: '', corrections: [], notes: [] };
     $(type + 'Parsed').style.display = 'none';
     $(type + 'Summary').value = '';
     $(type + 'CorrTbody').innerHTML = '';
+    rebuildNotes();
     recompute();
   };
 
@@ -541,8 +567,8 @@ const AdminGrade = (() => {
     if (!confirm('入力中のすべての内容をクリアします。よろしいですか？')) return;
     ['stuName','stuEmailTo','stuSetNo','stuSubmitDate','emailClaudeOut','adClaudeOut','emailSummary','adSummary','notes'].forEach(id => { const el = $(id); if (el) el.value = ''; });
     $('basCorrect').value = 0;
-    state.email = { score:null, summary:'', corrections:[] };
-    state.ad    = { score:null, summary:'', corrections:[] };
+    state.email = { score:null, summary:'', corrections:[], notes:[] };
+    state.ad    = { score:null, summary:'', corrections:[], notes:[] };
     $('emailParsed').style.display = 'none';
     $('adParsed').style.display    = 'none';
     $('emailCorrTbody').innerHTML  = '';
