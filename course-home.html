@@ -40,6 +40,15 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
 .upgrade-card .btn:hover{background:#004D2E;box-shadow:0 6px 18px rgba(0,118,70,.22);transform:translateY(-1px);}
 .ets-disclaimer{font-size:11px;color:#8a8f8c;line-height:1.6;text-align:center;padding:12px 16px;}
 .foot{margin-top:24px;font-size:12px;color:#5A6861;line-height:1.7;}
+.admin-preview-bar{background:linear-gradient(135deg,#FDF7E8,#fff);border:1px solid #E0C685;border-left:4px solid #C9A961;border-radius:10px;padding:12px 18px;margin-bottom:18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.admin-preview-bar .apb-label{font-size:11px;font-weight:800;color:#7A5F1E;letter-spacing:.14em;text-transform:uppercase;}
+.admin-preview-bar .apb-desc{font-size:12px;color:#5A6861;flex:1;line-height:1.55;min-width:200px;}
+.admin-preview-bar .apb-switch{display:inline-flex;gap:4px;background:#fff;border:1px solid #E0C685;border-radius:999px;padding:3px;}
+.admin-preview-bar .apb-switch button{background:none;border:none;font-family:inherit;font-size:12px;font-weight:700;color:#5A6861;padding:5px 12px;border-radius:999px;cursor:pointer;transition:all .15s;}
+.admin-preview-bar .apb-switch button.active{background:#C9A961;color:#fff;}
+.admin-preview-bar .apb-switch button:hover:not(.active){background:#FBF6EC;color:#002817;}
+.admin-preview-bar .apb-close{background:none;border:none;color:#5A6861;font-size:12px;text-decoration:underline;cursor:pointer;font-family:inherit;}
+.admin-preview-bar .apb-close:hover{color:#002817;}
 </style>
 <!-- Start of HubSpot Embed Code --><script type="text/javascript" id="hs-script-loader" async defer src="//js-na2.hs-scripts.com/242729130.js"></script><!-- End of HubSpot Embed Code -->
 </head>
@@ -51,6 +60,7 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
 </div>
 
 <div class="wrap">
+  <div id="adminPreviewBar"></div>
   <div class="intro">
     <h1>コースホーム</h1>
     <p class="course-desc">TOEFL iBT® テスト Writing 対策 ／ Preparation for the TOEFL iBT® Test</p>
@@ -79,12 +89,39 @@ const ALLOWED_PLANS = [4, 8, 12];
 const user = Auth.require();
 Auth.showBadge('userBadge');
 
+/* Admin preview: ?adminPreview=1 を付けて開くと、管理者がプラン 4/8/12 の
+   表示を切り替えながら受講者の画面を確認できる。一般受講者には何も影響しない。 */
+const urlParams = new URLSearchParams(location.search);
+const ADMIN_PREVIEW = user.isAdmin && urlParams.get('adminPreview') === '1';
+let previewPlan = null;  // null = 通常モード（user.plan）
+
 function normalizePlan(v){
   const n = Number(v);
   return ALLOWED_PLANS.indexOf(n) >= 0 ? n : 4;
 }
 
+function renderAdminPreviewBar(currentPlan){
+  if (!ADMIN_PREVIEW) return;
+  const bar = document.getElementById('adminPreviewBar');
+  bar.className = 'admin-preview-bar';
+  bar.innerHTML =
+    '<span class="apb-label">👁 管理者プレビュー</span>' +
+    '<span class="apb-desc">受講者が見ている画面です。下のスイッチでプラン別の表示（解放セット数・購入ボタンの有無）を確認できます。</span>' +
+    '<span class="apb-switch">' +
+      ALLOWED_PLANS.map(function(p){
+        return '<button type="button" class="' + (p === currentPlan ? 'active' : '') + '" onclick="switchPreviewPlan(' + p + ')">Plan ' + p + '</button>';
+      }).join('') +
+    '</span>' +
+    '<button type="button" class="apb-close" onclick="window.close()">閉じる</button>';
+}
+
+function switchPreviewPlan(p){
+  previewPlan = p;
+  render(p);
+}
+
 function render(plan){
+  renderAdminPreviewBar(plan);
   const grid = document.getElementById('setGrid');
   grid.innerHTML = '';
   const n = Math.min(plan, BAS_SETS.length);
@@ -131,11 +168,17 @@ function renderUpgrade(plan){
   slot.appendChild(card);
 }
 
-/* 初期描画：localStorage に保存済みの plan ですぐ描画 */
-render(normalizePlan(user.plan));
+/* 初期描画：admin preview なら 4 から、通常は localStorage の plan で描画 */
+if (ADMIN_PREVIEW) {
+  previewPlan = 4;
+  render(4);
+} else {
+  render(normalizePlan(user.plan));
+}
 
-/* 同期：サーバーの最新 plan を取りに行き、変わっていたら再描画 */
-if (API && API.getUser){
+/* 同期：サーバーの最新 plan を取りに行き、変わっていたら再描画
+   （admin preview 時はサーバー sync をスキップ — 表示は preview の値で固定） */
+if (!ADMIN_PREVIEW && API && API.getUser){
   API.getUser(user.id).then(function(r){
     if (!r || !r.success) return;
     const fresh = normalizePlan(r.plan);
