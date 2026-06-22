@@ -6,11 +6,11 @@
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="shortcut icon" href="assets/favicon.ico">
-<title>採点バンドスコア計算 — TCK Workshop 管理者</title>
+<title>添削返却ツール — TCK Workshop 管理者</title>
 <link rel="stylesheet" href="css/common.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-serif;background:#FBF6EC;min-height:100vh;color:#002817;}
+body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-serif;background:#FBF6EC;min-height:100vh;color:#0F1511;font-size:14px;line-height:1.65;}
 .top-nav{background:#002817;color:#fff;display:flex;justify-content:space-between;align-items:center;padding:10px 24px;font-size:14px;gap:8px;flex-wrap:wrap;}
 .nav-left{display:flex;align-items:center;gap:12px;min-width:0;}
 .nav-left .section-label{font-weight:700;font-size:15px;}
@@ -19,46 +19,109 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
 .nav-tag{background:#C9A961;color:#002817;font-size:10px;font-weight:800;padding:3px 8px;border-radius:999px;letter-spacing:.08em;}
 .admin-badge{display:flex;align-items:center;gap:10px;font-size:13px;color:#D6DAD7;}
 .admin-badge .name{color:#fff;font-weight:600;}
-.admin-badge img{width:22px;height:22px;border-radius:50%;}
 .admin-badge .btn-logout{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border:1px solid rgba(255,255,255,.35);border-radius:999px;color:inherit;text-decoration:none;font-size:.85em;font-weight:600;line-height:1;cursor:pointer;background:transparent;font-family:inherit;}
 .admin-badge .btn-logout:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.7);}
-.wrap{max-width:880px;margin:0 auto;padding:28px 16px 60px;}
-.intro h1{font-size:22px;font-weight:700;margin-bottom:4px;}
-.sub{font-size:13px;color:#5A6861;margin-bottom:22px;line-height:1.7;}
-.card{background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.06);padding:24px 26px;margin-bottom:18px;}
-.card h2{font-size:15px;font-weight:700;margin-bottom:4px;}
-.card .hint{font-size:12px;color:#5A6861;margin-bottom:16px;}
-.row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid #F5E9D3;}
-.row:last-child{border-bottom:none;}
-.row .label{font-size:14px;font-weight:600;}
-.row .label small{display:block;font-weight:400;color:#5A6861;font-size:12px;margin-top:2px;}
-.seg{display:flex;flex-wrap:wrap;gap:6px;}
-.seg button{border:1.5px solid #D6DAD7;background:#fff;color:#5A6861;font-family:inherit;font-size:13px;font-weight:600;padding:7px 12px;border-radius:8px;cursor:pointer;transition:all .12s;}
-.seg button:hover{border-color:#007646;}
-.seg button.active{background:#007646;border-color:#007646;color:#fff;}
-.num-input{width:84px;font-family:inherit;font-size:15px;font-weight:700;text-align:center;border:1.5px solid #D6DAD7;border-radius:8px;padding:8px;color:#002817;}
-.num-input:focus{outline:none;border-color:#007646;}
-.result{background:#002817;color:#fff;border-radius:12px;padding:28px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
-.result .breakdown{font-size:13px;line-height:1.9;}
-.result .breakdown span{color:#9FB3AA;}
-.result .breakdown b{color:#fff;}
-.band-box{text-align:center;flex:1;min-width:200px;}
-.band-box .band-num{font-size:64px;font-weight:800;line-height:1;color:#fff;}
-.band-box .band-of{font-size:18px;font-weight:600;color:#9FB3AA;}
-.band-box .band-desc{font-size:13px;color:#D6DAD7;margin-top:8px;}
-.formula{font-size:12px;color:#5A6861;background:#FDF7E8;border-left:4px solid #C9A961;padding:12px 16px;border-radius:4px;margin-top:14px;}
-.formula code{background:#fff;padding:1px 6px;border-radius:4px;font-size:11px;}
-.rubric{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-@media(max-width:680px){.rubric{grid-template-columns:1fr;}.top-nav{padding:8px 16px;}.wrap{padding:18px 12px 40px;}}
-.rubric .rb{background:#FBF6EC;border:1px solid #F5E9D3;border-radius:10px;padding:16px;}
-.rubric .rb h3{font-size:13px;font-weight:700;color:#007646;margin-bottom:8px;}
-.rubric .rb table{width:100%;border-collapse:collapse;font-size:12px;}
-.rubric .rb td{padding:5px 4px;vertical-align:top;border-bottom:1px solid #ECE1CB;color:#5A6861;}
-.rubric .rb td:first-child{width:26px;font-weight:700;color:#002817;}
-.rubric .rb tr:last-child td{border-bottom:none;}
-.note{font-size:12px;color:#5A6861;margin-top:6px;}
-.copybtn{margin-top:16px;background:#007646;color:#fff;border:none;font-family:inherit;font-size:13px;font-weight:600;padding:10px 20px;border-radius:8px;cursor:pointer;}
-.copybtn:hover{background:#004D2E;}
+
+.wrap{max-width:900px;margin:0 auto;padding:24px 16px 80px;}
+h1.page-title{font-size:22px;font-weight:700;margin-bottom:6px;color:#002817;}
+p.page-sub{font-size:13px;color:#5A6861;margin-bottom:22px;}
+
+.card{background:#fff;border:1px solid #F5E9D3;border-radius:12px;box-shadow:0 1px 4px rgba(0,40,23,.04);margin-bottom:18px;overflow:hidden;}
+.card-head{display:flex;align-items:center;gap:10px;padding:14px 22px;border-bottom:1px solid #F5E9D3;background:#FBF6EC;}
+.card-head .num{background:#007646;color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.card-head h2{font-size:15px;font-weight:700;color:#002817;flex:1;text-align:left;}
+.card-head .hint{font-size:11px;color:#5A6861;font-weight:400;}
+.card-body{padding:20px 22px;}
+
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.field-grid.three{grid-template-columns:1fr 1fr 100px;}
+@media(max-width:680px){.field-grid,.field-grid.three{grid-template-columns:1fr;}}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field label{font-size:12px;font-weight:700;color:#007646;letter-spacing:.04em;text-align:left;}
+.field input[type=text],.field input[type=email],.field input[type=number],.field textarea,.field select{
+  font-family:inherit;font-size:14px;padding:9px 12px;border:1.5px solid #D6DAD7;border-radius:8px;background:#fff;color:#0F1511;outline:none;transition:border-color .15s;width:100%;
+}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:#007646;box-shadow:0 0 0 3px rgba(0,118,70,.1);}
+.field textarea{resize:vertical;min-height:60px;line-height:1.6;}
+.field small.helper{font-size:11px;color:#5A6861;}
+
+.manual{font-size:13px;line-height:1.85;color:#0F1511;}
+.manual ol{padding-left:20px;}
+.manual li{margin-bottom:6px;}
+.manual code{background:#FBF6EC;padding:1px 6px;border-radius:4px;font-family:'Manrope','SF Mono',Consolas,monospace;font-size:12px;color:#007646;}
+.collapsible-toggle{background:none;border:none;color:#5A6861;font-family:inherit;font-size:12px;cursor:pointer;margin-left:auto;}
+.collapsible-toggle:hover{color:#007646;}
+.collapsible-body{display:block;}
+.collapsible.is-collapsed .collapsible-body{display:none;}
+
+.score-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.score-row .lbl{font-size:13px;color:#5A6861;}
+.score-row .num-input{width:78px;font-family:inherit;font-size:15px;font-weight:700;text-align:center;border:1.5px solid #D6DAD7;border-radius:8px;padding:9px;color:#0F1511;}
+.score-row .num-input:focus{outline:none;border-color:#007646;}
+.score-row .out{font-size:13px;color:#5A6861;}
+.score-row .out b{color:#007646;font-weight:700;}
+
+.prompt-box{background:#FBF6EC;border:1px solid #F5E9D3;border-left:4px solid #007646;border-radius:8px;padding:12px 14px;font-family:'Manrope','SF Mono',Consolas,monospace;font-size:12px;line-height:1.65;white-space:pre-wrap;max-height:200px;overflow-y:auto;color:#002817;margin-bottom:8px;text-align:left;}
+.row-actions{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;font-family:inherit;font-size:13px;font-weight:600;border-radius:8px;cursor:pointer;border:none;transition:all .15s;}
+.btn-outline{background:#fff;color:#007646;border:1.5px solid #D6DAD7;}
+.btn-outline:hover{border-color:#007646;background:#FBF6EC;}
+.btn-primary{background:#007646;color:#fff;}
+.btn-primary:hover{background:#004D2E;}
+.btn-secondary{background:#002817;color:#fff;}
+.btn-secondary:hover{background:#000;}
+.btn-ghost{background:transparent;color:#5A6861;}
+.btn-ghost:hover{color:#007646;}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+.paste-area{width:100%;font-family:'Manrope','SF Mono',Consolas,monospace;font-size:12px;line-height:1.6;padding:10px 12px;border:1.5px solid #D6DAD7;border-radius:8px;background:#fff;color:#0F1511;outline:none;min-height:90px;resize:vertical;}
+.paste-area:focus{border-color:#007646;}
+
+.parsed-section{background:#FBF6EC;border:1px solid #F5E9D3;border-radius:10px;padding:18px;margin-top:14px;text-align:left;}
+.parsed-section .parsed-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.parsed-section .parsed-head .badge{background:#007646;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px;letter-spacing:.08em;}
+.parsed-section .parsed-head .badge.ok{background:#0E5530;}
+
+.corrections-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;}
+.corrections-table th{background:#002817;color:#fff;padding:9px 10px;text-align:left;font-weight:700;font-size:11px;letter-spacing:.04em;}
+.corrections-table th:first-child{width:36px;text-align:center;}
+.corrections-table th:last-child{width:40px;}
+.corrections-table td{padding:9px 10px;border-bottom:1px solid #F5E9D3;vertical-align:top;background:#fff;}
+.corrections-table tr:last-child td{border-bottom:none;}
+.corrections-table .num-cell{text-align:center;font-weight:700;color:#5A6861;font-family:'Manrope',sans-serif;}
+.corrections-table textarea{width:100%;font-family:inherit;font-size:12px;line-height:1.55;padding:6px 8px;border:1px solid #ECE1CB;border-radius:6px;background:#fff;color:#0F1511;outline:none;resize:vertical;min-height:42px;}
+.corrections-table textarea:focus{border-color:#007646;}
+.corrections-table .del-btn{background:none;border:none;color:#B85C3C;font-family:inherit;cursor:pointer;font-size:16px;padding:4px;}
+.corrections-table .del-btn:hover{color:#8A3E24;}
+
+.add-row{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1.5px dashed #D6DAD7;border-radius:8px;padding:7px 14px;color:#5A6861;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;margin-top:8px;}
+.add-row:hover{border-color:#007646;color:#007646;}
+
+.computed-band{background:linear-gradient(135deg,#002817,#004D2E);color:#fff;border-radius:12px;padding:24px 28px;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;}
+.computed-band .breakdown{font-size:13px;line-height:1.9;text-align:left;}
+.computed-band .breakdown span{color:#9FB3AA;}
+.computed-band .breakdown b{color:#fff;font-weight:700;}
+.computed-band .band-box{text-align:center;}
+.computed-band .band-num{font-size:56px;font-weight:800;line-height:1;font-family:'Manrope',sans-serif;}
+.computed-band .band-of{font-size:18px;font-weight:600;color:#9FB3AA;margin-left:4px;}
+.computed-band .band-desc{font-size:12px;color:#D6DAD7;margin-top:6px;}
+
+.action-bar{position:sticky;bottom:0;background:rgba(251,246,236,.96);backdrop-filter:blur(8px);border-top:1px solid #F5E9D3;padding:14px 20px;margin:24px -16px 0;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;align-items:center;}
+.action-bar .gap{flex:1;}
+
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#002817;color:#fff;padding:11px 22px;border-radius:999px;font-size:13px;box-shadow:0 8px 24px rgba(0,40,23,.3);z-index:1100;opacity:0;transition:opacity .2s;pointer-events:none;}
+.toast.show{opacity:1;}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,40,23,.55);display:none;align-items:flex-start;justify-content:center;z-index:1000;padding:24px 16px;overflow-y:auto;}
+.modal-overlay.show{display:flex;}
+.modal-card{background:#fff;border-radius:14px;max-width:900px;width:100%;padding:0;box-shadow:0 12px 40px rgba(0,40,23,.25);}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #F5E9D3;}
+.modal-head h2{font-size:15px;color:#002817;font-weight:700;}
+.modal-head .close{background:none;border:none;color:#5A6861;font-size:22px;cursor:pointer;line-height:1;}
+.modal-body{padding:0;max-height:78vh;overflow-y:auto;background:#e8e8e3;}
+.modal-actions{padding:14px 20px;border-top:1px solid #F5E9D3;display:flex;justify-content:flex-end;gap:10px;}
+
+#previewFrame{width:100%;height:78vh;border:0;background:#e8e8e3;}
 </style>
 </head>
 <body>
@@ -67,95 +130,241 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
     <img class="brand-logo" src="assets/tck-logo.png" alt="TCK Workshop" style="height:28px;width:auto;margin-right:8px">
     <span class="section-label">Admin</span>
     <span class="divider">|</span>
-    <span class="task-label">採点バンドスコア計算</span>
+    <span class="task-label">添削返却ツール</span>
     <span class="nav-tag">INTERNAL</span>
   </div>
   <div class="admin-badge" id="adminBadge"></div>
 </div>
 
 <div class="wrap">
-  <div class="intro">
-    <h1>採点・バンドスコア計算ツール</h1>
-    <p class="sub">提出メールに添付された PDF を確認し、3 タスクの素点を入力すると、<strong>1.0〜6.0（0.5刻み）</strong>の合算バンドスコアを自動算出します。ETS 公式の 0〜5 タスクスコア／1〜6 セクションスコア体系に準拠。</p>
+  <h1 class="page-title">添削返却ツール</h1>
+  <p class="page-sub">受講者から届いた提出メールの内容を取り込み、Claude で採点したフィードバックを整形して PDF として返却します。</p>
+
+  <!-- ===== Manual ===== -->
+  <div class="card collapsible" id="manualCard">
+    <div class="card-head">
+      <span class="num">📘</span>
+      <h2>添削手順マニュアル</h2>
+      <button type="button" class="collapsible-toggle" onclick="toggleCollapse('manualCard')" id="manualToggle">折りたたむ ▲</button>
+    </div>
+    <div class="card-body collapsible-body manual">
+      <ol>
+        <li>受講者から自動送信されてきた <strong>提出メール（PDF 添付）</strong> を開き、内容を確認します。</li>
+        <li>下の <strong>「受講者情報」</strong> セクションに名前・メールアドレス・Set番号を入力します。CC には自分（添削担当）のアドレスを入れておくと記録になります。</li>
+        <li><strong>Build a Sentence</strong> は PDF 内の「自動採点」結果をそのまま「正答数」欄に入力します（0〜10）。</li>
+        <li><strong>Write an Email</strong> セクションで：
+          <ol style="margin-top:6px">
+            <li>「プロンプトをコピー」ボタン → Claude のチャットに貼り付け</li>
+            <li>続いて受講者の答案（PDF からコピー）を Claude に渡し、採点を依頼</li>
+            <li>Claude が出力した JSON ブロックを「Claude 出力を貼り付け」欄にペースト</li>
+            <li><code>取り込む</code> ボタンを押すと、採点・総評・修正テーブルが自動展開</li>
+            <li>必要に応じて編集（特に総評と修正コメントは人間の手を入れた方が良いことが多い）</li>
+          </ol>
+        </li>
+        <li><strong>Academic Discussion</strong> も同じ手順で。</li>
+        <li><strong>注意ポイント</strong> 欄に、次回までに意識して欲しいことを 1〜3 個書きます。</li>
+        <li>下部の <code>PDF プレビュー</code> で最終確認 → 問題なければ <code>返却メールを送信</code>。</li>
+      </ol>
+    </div>
   </div>
 
+  <!-- ===== Student info ===== -->
   <div class="card">
-    <h2>① 各タスクの素点を入力</h2>
-    <p class="hint">Build a Sentence は自動採点（正答数）。Write an Email と Academic Discussion は下の Rubric に沿って 0〜5 を 0.5 刻みで入力。</p>
-
-    <div class="row">
-      <div class="label">Build a Sentence<small>自動採点：正答数（0〜10）</small></div>
-      <input class="num-input" id="basInput" type="number" min="0" max="10" step="1" value="0" oninput="calc()">
-    </div>
-
-    <div class="row">
-      <div class="label">Write an Email<small>Rubric 0〜5</small></div>
-      <div class="seg" id="emailSeg"></div>
-    </div>
-
-    <div class="row">
-      <div class="label">Academic Discussion<small>Rubric 0〜5</small></div>
-      <div class="seg" id="adSeg"></div>
-    </div>
-  </div>
-
-  <div class="result">
-    <div class="breakdown" id="breakdown"></div>
-    <div class="band-box">
-      <div><span class="band-num" id="bandNum">–</span><span class="band-of"> / 6.0</span></div>
-      <div class="band-desc" id="bandDesc">素点を入力してください</div>
-    </div>
-  </div>
-  <div class="formula">
-    <b>計算式（機械的・再現可能）：</b><br>
-    BaS換算 = <code>正答数 ÷ 10 × 5</code>（0〜5に正規化）<br>
-    平均 = <code>(BaS換算 + Email + Discussion) ÷ 3</code>（0〜5）<br>
-    バンド = <code>平均 + 1</code> を 0.5 刻みに四捨五入し、1.0〜6.0 にクランプ<br>
-    <span class="note">※ 3タスク等重み。重み変更が必要ならこの係数だけ調整すれば再現性は保てます。</span>
-  </div>
-  <button class="copybtn" onclick="copyResult()">採点結果をコピー（返却メール用）</button>
-
-  <div class="card" style="margin-top:18px">
-    <h2>② 採点 Rubric（参照用）</h2>
-    <p class="hint">ETS 公式の評価観点を要約したもの。返却フィードバックは「日本語の言い換え＋具体例」とセットで。</p>
-    <div class="rubric">
-      <div class="rb">
-        <h3>Write an Email（0〜5）</h3>
-        <table>
-          <tr><td>5</td><td>用件を完全に達成。丁寧さ・レジスター・構成などの社会的慣習が一貫して適切。語彙構文に幅があり、誤りはほぼ時間制約由来のタイプミス程度。</td></tr>
-          <tr><td>4</td><td>おおむね用件を達成し、伝わりやすい。慣習はほぼ適切、誤りは少数。展開はやや浅い箇所あり。</td></tr>
-          <tr><td>3</td><td>用件は概ね達成するが、言語面の制約で明確さ・効果が損なわれる箇所あり。語形・構文・慣習に目立つ誤り。</td></tr>
-          <tr><td>2</td><td>取り組みは見られるが大半が不十分。展開が限定的／無関係。誤りが累積し、読み取りにくい。</td></tr>
-          <tr><td>1</td><td>用件をほぼ達成できない。断片的な英語、深刻で頻繁な誤り、原文の借用が大半。</td></tr>
-          <tr><td>0</td><td>白紙／話題拒否／英語でない／プロンプト丸写し／無関係／無意味な打鍵。</td></tr>
-        </table>
+    <div class="card-head"><span class="num">1</span><h2>受講者情報</h2></div>
+    <div class="card-body">
+      <div class="field-grid three">
+        <div class="field">
+          <label for="stuName">受講者名（フルネーム）</label>
+          <input type="text" id="stuName" placeholder="例: 西宮 ニコ">
+        </div>
+        <div class="field">
+          <label for="stuEmailTo">宛先メール (To)</label>
+          <input type="email" id="stuEmailTo" placeholder="student@example.com">
+        </div>
+        <div class="field">
+          <label for="stuSetNo">Set 番号</label>
+          <input type="number" id="stuSetNo" min="1" max="12" placeholder="1〜12">
+        </div>
       </div>
-      <div class="rb">
-        <h3>Academic Discussion（0〜5）</h3>
-        <table>
-          <tr><td>5</td><td>議論への貢献が明確で関連性が高い。説明・例・詳細が十分に展開。構文に幅があり語選択が的確。誤りはほぼなし。</td></tr>
-          <tr><td>4</td><td>関連性が高く、言語運用により考えが容易に伝わる。展開は適切、誤りは少数。</td></tr>
-          <tr><td>3</td><td>概ね関連し理解可能だが、説明・例の一部が欠落／不明瞭。構文・語彙にある程度の幅。誤りが目立つ箇所あり。</td></tr>
-          <tr><td>2</td><td>貢献の試みは見えるが、言語の制約で考えが追いにくい。展開が乏しい／部分的にしか関連しない。誤りが累積。</td></tr>
-          <tr><td>1</td><td>有効な貢献になっておらず、言語の制約で考えがほぼ表現できていない。原文借用が大半。</td></tr>
-          <tr><td>0</td><td>白紙／話題拒否／英語でない／プロンプト丸写し／無関係／無意味な打鍵。</td></tr>
-        </table>
-        <p class="note">※ 他の学生の意見に触れているかは Academic Discussion 評価の重要観点。</p>
+      <div class="field-grid" style="margin-top:14px">
+        <div class="field">
+          <label for="stuEmailCc">CC（任意）</label>
+          <input type="email" id="stuEmailCc" placeholder="copy@tckworkshop.co.jp（自分のアドレス推奨）">
+        </div>
+        <div class="field">
+          <label for="stuSubmitDate">提出日（任意）</label>
+          <input type="text" id="stuSubmitDate" placeholder="例: 2026/06/15">
+        </div>
       </div>
     </div>
-    <div class="rb" style="margin-top:16px;background:#FBF6EC;border:1px solid #F5E9D3;border-radius:10px;padding:16px;">
-      <h3 style="font-size:13px;font-weight:700;color:#007646;margin-bottom:8px;">Build a Sentence（自動採点 → 0〜5 換算）</h3>
-      <table style="width:100%;border-collapse:collapse;font-size:12px;">
-        <tr><td style="padding:5px 4px;color:#5A6861;">各問は語順が完全一致で正解（許容される別解は登録済み）。正答数（0〜10）を <code>÷10×5</code> で 0〜5 に換算。例：7/10 = 3.5/5。</td></tr>
-      </table>
+  </div>
+
+  <!-- ===== BAS ===== -->
+  <div class="card">
+    <div class="card-head"><span class="num">2</span><h2>Build a Sentence — 自動採点</h2><span class="hint">PDF 内の正答数をそのまま入力</span></div>
+    <div class="card-body">
+      <div class="score-row">
+        <span class="lbl">正答数</span>
+        <input type="number" class="num-input" id="basCorrect" min="0" max="10" step="1" value="0" oninput="recompute()">
+        <span class="out">/ 10　→ 0〜5 換算：<b id="basOut">0.00</b> / 5</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Email ===== -->
+  <div class="card">
+    <div class="card-head"><span class="num">3</span><h2>Write an Email — Claude 添削</h2></div>
+    <div class="card-body" id="emailBlock">
+      <div class="field" style="margin-bottom:12px">
+        <label>Claude に渡すプロンプト</label>
+        <div class="prompt-box" id="emailPrompt"></div>
+        <div class="row-actions">
+          <button type="button" class="btn btn-outline" onclick="copyPrompt('email')">📋 プロンプトをコピー</button>
+          <small class="helper">プロンプトをコピーし、Claude のチャットに貼り付け → 続けて受講者の答案を貼り付けて採点を依頼します。</small>
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom:8px">
+        <label for="emailClaudeOut">Claude 出力を貼り付け（JSON ブロック）</label>
+        <textarea class="paste-area" id="emailClaudeOut" placeholder="Claude が返した ```json ... ``` ブロックをそのまま貼り付けてください。"></textarea>
+        <div class="row-actions">
+          <button type="button" class="btn btn-primary" onclick="ingest('email')">↓ 取り込む</button>
+          <button type="button" class="btn btn-ghost" onclick="clearIngest('email')">クリア</button>
+        </div>
+      </div>
+
+      <div class="parsed-section" id="emailParsed" style="display:none">
+        <div class="parsed-head">
+          <span class="badge ok">取り込み完了</span>
+          <span style="font-size:12px;color:#5A6861">以下は編集可能。返却PDF にそのまま反映されます。</span>
+        </div>
+        <div class="field-grid" style="margin-bottom:14px">
+          <div class="field">
+            <label for="emailScore">スコア（0〜5・0.5刻み）</label>
+            <select id="emailScore" onchange="recompute()" class="num-input" style="width:100%"></select>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:14px">
+          <label for="emailSummary">総評（受講者宛・編集推奨）</label>
+          <textarea id="emailSummary" rows="3" placeholder="Claude が生成した総評。必要に応じて手直ししてください。"></textarea>
+        </div>
+        <label style="font-size:12px;font-weight:700;color:#007646;letter-spacing:.04em;display:block;text-align:left;margin-bottom:6px">原文と添削コメント</label>
+        <table class="corrections-table">
+          <thead><tr><th>#</th><th>原文</th><th>修正文</th><th>コメント</th><th></th></tr></thead>
+          <tbody id="emailCorrTbody"></tbody>
+        </table>
+        <button type="button" class="add-row" onclick="addCorrection('email')">＋ 行を追加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== AD ===== -->
+  <div class="card">
+    <div class="card-head"><span class="num">4</span><h2>Academic Discussion — Claude 添削</h2></div>
+    <div class="card-body" id="adBlock">
+      <div class="field" style="margin-bottom:12px">
+        <label>Claude に渡すプロンプト</label>
+        <div class="prompt-box" id="adPrompt"></div>
+        <div class="row-actions">
+          <button type="button" class="btn btn-outline" onclick="copyPrompt('ad')">📋 プロンプトをコピー</button>
+          <small class="helper">受講者の答案 + 教授・他学生の投稿 もあわせて Claude に渡してください。</small>
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom:8px">
+        <label for="adClaudeOut">Claude 出力を貼り付け（JSON ブロック）</label>
+        <textarea class="paste-area" id="adClaudeOut" placeholder="Claude が返した ```json ... ``` ブロックをそのまま貼り付けてください。"></textarea>
+        <div class="row-actions">
+          <button type="button" class="btn btn-primary" onclick="ingest('ad')">↓ 取り込む</button>
+          <button type="button" class="btn btn-ghost" onclick="clearIngest('ad')">クリア</button>
+        </div>
+      </div>
+
+      <div class="parsed-section" id="adParsed" style="display:none">
+        <div class="parsed-head">
+          <span class="badge ok">取り込み完了</span>
+          <span style="font-size:12px;color:#5A6861">以下は編集可能。返却PDF にそのまま反映されます。</span>
+        </div>
+        <div class="field-grid" style="margin-bottom:14px">
+          <div class="field">
+            <label for="adScore">スコア（0〜5・0.5刻み）</label>
+            <select id="adScore" onchange="recompute()" class="num-input" style="width:100%"></select>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:14px">
+          <label for="adSummary">総評（受講者宛・編集推奨）</label>
+          <textarea id="adSummary" rows="3"></textarea>
+        </div>
+        <label style="font-size:12px;font-weight:700;color:#007646;letter-spacing:.04em;display:block;text-align:left;margin-bottom:6px">原文と添削コメント</label>
+        <table class="corrections-table">
+          <thead><tr><th>#</th><th>原文</th><th>修正文</th><th>コメント</th><th></th></tr></thead>
+          <tbody id="adCorrTbody"></tbody>
+        </table>
+        <button type="button" class="add-row" onclick="addCorrection('ad')">＋ 行を追加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Notes ===== -->
+  <div class="card">
+    <div class="card-head"><span class="num">5</span><h2>注意ポイント — 次回までに意識すること</h2><span class="hint">受講者向け・編集自由</span></div>
+    <div class="card-body">
+      <div class="field">
+        <label for="notes">3 つくらい箇条書きで（任意）</label>
+        <textarea id="notes" rows="4" placeholder="例：&#10;・Email では Yours sincerely / Best regards の使い分けに注意&#10;・Discussion では必ず他の学生の意見を 1 度引用してから自分の主張を展開&#10;・"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Computed Band ===== -->
+  <div class="card">
+    <div class="card-head"><span class="num">6</span><h2>合算バンドスコア（自動算出）</h2></div>
+    <div class="card-body">
+      <div class="computed-band">
+        <div class="breakdown" id="breakdown">
+          素点を入力するとここに計算過程が出ます
+        </div>
+        <div class="band-box">
+          <div><span class="band-num" id="bandNum">–</span><span class="band-of">/ 6.0</span></div>
+          <div class="band-desc" id="bandDesc">入力待ち</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Actions ===== -->
+  <div class="action-bar">
+    <button type="button" class="btn btn-outline" onclick="resetAll()">🗑 すべてクリア</button>
+    <div class="gap"></div>
+    <button type="button" class="btn btn-secondary" onclick="openPreview()">👁 PDF プレビュー</button>
+    <button type="button" class="btn btn-primary" id="sendBtn" onclick="sendReturnMail()">📧 返却メールを送信</button>
+  </div>
+</div>
+
+<!-- Preview modal -->
+<div class="modal-overlay" id="previewModal" onclick="if(event.target===this)closePreview()">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2>返却 PDF プレビュー</h2>
+      <button type="button" class="close" onclick="closePreview()">×</button>
+    </div>
+    <div class="modal-body">
+      <iframe id="previewFrame"></iframe>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" onclick="closePreview()">閉じる</button>
+      <button type="button" class="btn btn-primary" onclick="sendReturnMail()">📧 この内容で返却メールを送信</button>
     </div>
   </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script src="js/auth.js"></script>
+<script src="js/admin-grade.js"></script>
 <script>
-  // 認証ゲート: 未ログイン → index.html / ログイン済みだが isAdmin=false → course-home へ
-  const ADMIN = Auth.require();
+  // 認証ゲート
+  window.ADMIN = Auth.require();
   if (ADMIN && !ADMIN.isAdmin) {
     alert('このページは管理者専用です。');
     location.href = 'course-home.html';
@@ -167,72 +376,13 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
       '<span class="name">' + safeName + '</span>' +
       '<button class="btn-logout" type="button" onclick="Auth.logout()">ログアウト</button>';
   }
-
-  /* ===== 採点ロジック（移植） ===== */
-  const STEPS=[0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5];
-  let emailScore=null, adScore=null;
-
-  function buildSeg(id,onpick){
-    const el=document.getElementById(id);
-    STEPS.forEach(v=>{
-      const b=document.createElement('button');
-      b.textContent=v.toFixed(1);
-      b.onclick=()=>{onpick(v);[...el.children].forEach(c=>c.classList.remove('active'));b.classList.add('active');calc();};
-      el.appendChild(b);
-    });
-  }
-  buildSeg('emailSeg',v=>emailScore=v);
-  buildSeg('adSeg',v=>adScore=v);
-
-  function bandDescriptor(b){
-    if(b>=5.5) return '非常に優秀（C1〜）';
-    if(b>=4.5) return '優秀（B2上位）';
-    if(b>=3.5) return '良好（B2前後）';
-    if(b>=2.5) return '発展途上（B1前後）';
-    if(b>=1.5) return '基礎段階（A2前後）';
-    return '初学段階';
+  /* Prefill CC with admin email if available */
+  if (ADMIN && ADMIN.id) {
+    const ccField = document.getElementById('stuEmailCc');
+    if (!ccField.value) ccField.value = ADMIN.id.includes('@') ? ADMIN.id : (ADMIN.id + '@tckworkshop.co.jp');
   }
 
-  function calc(){
-    const correct=Math.max(0,Math.min(10,parseInt(document.getElementById('basInput').value)||0));
-    const bas5=correct/10*5;
-    const bd=document.getElementById('breakdown');
-    if(emailScore===null||adScore===null){
-      bd.innerHTML='<span>Build a Sentence:</span> <b>'+correct+'/10 → '+bas5.toFixed(2)+'/5</b><br><span>Email / Discussion を選択すると算出します</span>';
-      document.getElementById('bandNum').textContent='–';
-      document.getElementById('bandDesc').textContent='素点を入力してください';
-      return;
-    }
-    const avg=(bas5+emailScore+adScore)/3;
-    let band=avg+1;
-    band=Math.round(band*2)/2;
-    band=Math.max(1,Math.min(6,band));
-    bd.innerHTML=
-      '<span>Build a Sentence:</span> <b>'+correct+'/10 → '+bas5.toFixed(2)+'/5</b><br>'
-      +'<span>Write an Email:</span> <b>'+emailScore.toFixed(1)+'/5</b><br>'
-      +'<span>Academic Discussion:</span> <b>'+adScore.toFixed(1)+'/5</b><br>'
-      +'<span>平均（0〜5）:</span> <b>'+avg.toFixed(2)+'</b>';
-    document.getElementById('bandNum').textContent=band.toFixed(1);
-    document.getElementById('bandDesc').textContent=bandDescriptor(band);
-  }
-
-  function copyResult(){
-    const correct=parseInt(document.getElementById('basInput').value)||0;
-    const bas5=(correct/10*5).toFixed(2);
-    if(emailScore===null||adScore===null){alert('Email と Discussion のスコアを選択してください。');return;}
-    const avg=((correct/10*5)+emailScore+adScore)/3;
-    let band=Math.max(1,Math.min(6,Math.round((avg+1)*2)/2));
-    const txt=
-'【TCK Workshop ライティング添削コース 採点結果】\n'
-+'Build a Sentence : '+correct+'/10（'+bas5+'/5）\n'
-+'Write an Email   : '+emailScore.toFixed(1)+'/5\n'
-+'Academic Discussion : '+adScore.toFixed(1)+'/5\n'
-+'─────────────\n'
-+'合算バンドスコア : '+band.toFixed(1)+' / 6.0';
-    navigator.clipboard.writeText(txt).then(()=>alert('コピーしました。')).catch(()=>{prompt('以下をコピーしてください：',txt);});
-  }
-  calc();
+  AdminGrade.init();
 </script>
-<script defer src="../js/tm-footer.js"></script>
 </body>
 </html>
