@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>添削結果 PDF サンプル v2 — TCK Workshop ライティング添削コース</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#007646;
+  --green-dark:#004D2E;
+  --green-deep:#002817;
+  --gold:#C9A961;
+  --cream:#FBF6EC;
+  --paper:#F5E9D3;
+  --ink-900:#0F1511;
+  --ink-500:#5A6861;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:#e8e8e3;font-family:'Manrope','Noto Sans JP',sans-serif;color:var(--ink-900);}
+.preview-note{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid var(--paper);border-radius:999px;padding:8px 18px;font-size:12px;color:var(--ink-500);box-shadow:0 4px 14px rgba(0,0,0,.08);z-index:100;}
+.preview-note b{color:var(--green);}
+
+@page{size:A4;margin:0;}
+@media print{
+  html,body{background:#fff;}
+  .preview-note{display:none;}
+}
+
+.page{
+  width:210mm;min-height:297mm;
+  margin:30px auto;padding:18mm 18mm 22mm;
+  background:#fff;box-shadow:0 8px 32px rgba(0,40,23,.12);
+  position:relative;
+  page-break-after:always;
+}
+.page:last-child{page-break-after:avoid;}
+
+.page-header{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--paper);margin-bottom:18px;}
+.page-header .brand{font-size:11px;letter-spacing:.14em;color:var(--green);font-weight:800;text-transform:uppercase;}
+.page-header .meta{margin-left:auto;font-size:11px;color:var(--ink-500);}
+.page-footer{position:absolute;bottom:10mm;left:18mm;right:18mm;padding-top:6px;border-top:1px solid var(--paper);font-size:9px;color:#8a8f8c;display:flex;justify-content:space-between;}
+
+/* Cover */
+.cover{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;min-height:248mm;}
+.cover .kicker{font-size:13px;letter-spacing:.18em;color:var(--gold);font-weight:800;text-transform:uppercase;margin-bottom:12px;}
+.cover h1{font-family:'Noto Sans JP',sans-serif;font-size:30px;font-weight:700;color:var(--green-deep);margin-bottom:6px;line-height:1.3;}
+.cover .subtitle{font-size:13px;color:var(--ink-500);margin-bottom:40px;}
+.student-card{background:var(--cream);border:1px solid var(--paper);border-radius:14px;padding:20px 30px;margin-bottom:36px;min-width:320px;}
+.student-card .row{display:flex;justify-content:space-between;gap:24px;padding:5px 0;font-size:13px;}
+.student-card .row .label{color:var(--ink-500);}
+.student-card .row .value{color:var(--green-deep);font-weight:600;}
+.band-result{background:linear-gradient(135deg,var(--green-deep),var(--green-dark));color:#fff;border-radius:18px;padding:28px 52px;text-align:center;box-shadow:0 8px 26px rgba(0,40,23,.18);}
+.band-result .label{font-size:11px;letter-spacing:.18em;font-weight:700;color:var(--gold);text-transform:uppercase;margin-bottom:8px;}
+.band-result .number{display:flex;align-items:baseline;justify-content:center;gap:6px;}
+.band-result .number .big{font-size:82px;font-weight:800;line-height:1;font-family:'Manrope',sans-serif;}
+.band-result .number .of{font-size:22px;color:rgba(255,255,255,.65);font-weight:600;}
+.band-result .desc{font-size:12px;color:rgba(255,255,255,.85);margin-top:6px;}
+
+/* Sections */
+.section-title{font-size:16px;font-weight:700;color:var(--green-deep);border-bottom:2px solid var(--green);padding-bottom:5px;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.section-title .num{background:var(--green);color:#fff;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+
+/* Score table */
+.score-table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:12.5px;}
+.score-table th{background:var(--cream);color:var(--green);padding:10px 12px;text-align:left;font-weight:700;font-size:11px;letter-spacing:.04em;border-bottom:1px solid var(--paper);}
+.score-table td{padding:11px 12px;border-bottom:1px solid var(--paper);}
+.score-table tr:last-child td{border-bottom:none;}
+.score-table .task{font-weight:700;color:var(--green-deep);}
+.score-table .raw{color:var(--ink-500);font-size:11px;}
+.score-table .conv{font-weight:700;color:var(--green);text-align:right;}
+.score-table tr.total{background:var(--cream);}
+.score-table tr.total td{padding:12px;font-weight:700;color:var(--green-deep);}
+
+.calc-box{background:#FDF7E8;border-left:4px solid var(--gold);border-radius:6px;padding:12px 14px;margin-bottom:18px;font-size:11.5px;line-height:1.75;color:#5A4A1E;}
+.calc-box b{color:var(--green-deep);}
+.calc-box code{background:#fff;padding:1px 5px;border-radius:4px;font-size:11px;color:var(--green-deep);font-family:'Manrope','SF Mono',Consolas,monospace;}
+
+/* Feedback blocks */
+.feedback-block{background:var(--cream);border-radius:10px;padding:16px 20px;margin-bottom:12px;}
+.feedback-block h3{font-size:12.5px;font-weight:700;color:var(--green);margin-bottom:4px;letter-spacing:.04em;}
+.feedback-block .sub{font-size:11px;color:var(--ink-500);margin-bottom:8px;}
+.feedback-block .body{font-size:12px;color:var(--ink-900);line-height:1.85;white-space:pre-wrap;}
+
+/* Corrections table */
+.corr-table{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:8px;margin-bottom:14px;background:#fff;border:1px solid var(--paper);border-radius:8px;overflow:hidden;}
+.corr-table th{background:var(--green-deep);color:#fff;padding:8px 10px;text-align:left;font-weight:700;font-size:11px;letter-spacing:.04em;}
+.corr-table th:first-child{width:32px;text-align:center;}
+.corr-table td{padding:9px 10px;border-bottom:1px solid #ECE1CB;vertical-align:top;line-height:1.6;}
+.corr-table tr:last-child td{border-bottom:none;}
+.corr-table td.num-cell{text-align:center;font-weight:700;color:var(--ink-500);}
+.corr-table td.orig{color:#7A2E1A;}
+.corr-table td.revd{color:#0E5530;font-weight:600;}
+.corr-table td.cmt{color:var(--ink-900);font-size:11px;}
+
+.notes-card{background:linear-gradient(135deg,#FBF6EC,#fff);border:1px solid var(--paper);border-radius:12px;padding:16px 20px;margin-top:18px;}
+.notes-card h3{font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px;}
+.notes-list{padding-left:18px;font-size:12px;line-height:1.85;color:var(--ink-900);}
+.notes-list li{margin-bottom:3px;}
+
+.signoff{margin-top:22px;text-align:right;font-size:11.5px;color:var(--ink-500);line-height:1.7;}
+.signoff b{color:var(--green-deep);}
+</style>
+</head>
+<body>
+
+<div class="preview-note">📄 これは新フォーマットのプレビューです。本番は GAS が PDF 化してメール添付します。 — <b>添削結果（受講者宛）— v2</b></div>
+
+<!-- ===== Page 1: 表紙 ===== -->
+<div class="page">
+  <div class="page-header">
+    <span class="brand">TCK Workshop ライティング添削コース</span>
+    <span class="meta">添削結果 / RETURN</span>
+  </div>
+
+  <div class="cover">
+    <div class="kicker">Writing Feedback</div>
+    <h1>ライティング添削結果</h1>
+    <p class="subtitle">TOEFL iBT&reg; テスト Writing 対策</p>
+
+    <div class="student-card">
+      <div class="row"><span class="label">受講者</span><span class="value">西宮 ニコ 様</span></div>
+      <div class="row"><span class="label">セット</span><span class="value">Practice Set 3</span></div>
+      <div class="row"><span class="label">提出日</span><span class="value">2026/06/15</span></div>
+      <div class="row"><span class="label">返却日</span><span class="value">2026/06/18</span></div>
+      <div class="row"><span class="label">担当講師</span><span class="value">Nico (TCK Workshop)</span></div>
+    </div>
+
+    <div class="band-result">
+      <div class="label">合算バンドスコア</div>
+      <div class="number"><span class="big">4.5</span><span class="of">/ 6.0</span></div>
+      <div class="desc">良好（B2 上位レベル）</div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div>TOEFL および TOEFL iBT は ETS の登録商標です。本教材は ETS の承認・推奨を受けたものではありません。</div>
+    <div>1 / 3</div>
+  </div>
+</div>
+
+<!-- ===== Page 2: スコア + 総評 ===== -->
+<div class="page">
+  <div class="page-header">
+    <span class="brand">TCK Workshop ライティング添削コース</span>
+    <span class="meta">Set 3 / 西宮 ニコ 様</span>
+  </div>
+
+  <div class="section-title"><span class="num">1</span>各タスクの素点</div>
+  <table class="score-table">
+    <thead>
+      <tr>
+        <th style="width:38%">タスク</th>
+        <th style="width:32%">素点</th>
+        <th style="width:30%;text-align:right">0〜5 換算</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="task">Build a Sentence</span><br><span class="raw">並べ替え 10 問・自動採点</span></td>
+        <td><b>7 / 10</b><span class="raw"> （正答数）</span></td>
+        <td class="conv">3.50 / 5</td>
+      </tr>
+      <tr>
+        <td><span class="task">Write an Email</span><br><span class="raw">ETS Rubric 0〜5</span></td>
+        <td><b>4.0 / 5</b></td>
+        <td class="conv">4.00 / 5</td>
+      </tr>
+      <tr>
+        <td><span class="task">Academic Discussion</span><br><span class="raw">ETS Rubric 0〜5</span></td>
+        <td><b>3.5 / 5</b></td>
+        <td class="conv">3.50 / 5</td>
+      </tr>
+      <tr class="total">
+        <td>3 タスク平均</td>
+        <td>—</td>
+        <td class="conv">3.67 / 5</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="calc-box">
+    <b>計算式（同梱の「採点基準と計算方法 PDF」もご参照ください）：</b><br>
+    バンドスコア = <code>平均（0〜5） + 1</code> を 0.5 刻みで四捨五入 → <b>4.5 / 6.0</b>
+  </div>
+
+  <div class="section-title"><span class="num">2</span>総評</div>
+
+  <div class="feedback-block">
+    <h3>WRITE AN EMAIL</h3>
+    <div class="sub">4.0 / 5</div>
+    <div class="body">用件は明確に伝わり、書き出し・締めくくりのレジスターも依頼メールとして適切でした。指示された 3 つのタスクポイントも過不足なくカバーできています。一方、つなぎ語の使い方がやや単調なので、"In addition," "Moreover," 等で展開を立体化させると、より高い評価に届きます。</div>
+  </div>
+
+  <div class="feedback-block">
+    <h3>ACADEMIC DISCUSSION</h3>
+    <div class="sub">3.5 / 5</div>
+    <div class="body">立場は明確で、教授の質問にも正面から答えられています。一方、他の学生（Andrew・Claire）の意見への直接的な参照が無いまま自分の意見だけを書き切ってしまっており、これが Academic Discussion の評価軸では大きな失点要因です。次回は冒頭で "While Andrew suggests X, I would argue that…" のように、必ず 1 人以上の意見に触れてから自分の主張を展開しましょう。</div>
+  </div>
+
+  <div class="page-footer">
+    <div>TOEFL および TOEFL iBT は ETS の登録商標です。本教材は ETS の承認・推奨を受けたものではありません。</div>
+    <div>2 / 3</div>
+  </div>
+</div>
+
+<!-- ===== Page 3: 原文と添削 + 注意ポイント ===== -->
+<div class="page">
+  <div class="page-header">
+    <span class="brand">TCK Workshop ライティング添削コース</span>
+    <span class="meta">Set 3 / 西宮 ニコ 様</span>
+  </div>
+
+  <div class="section-title"><span class="num">3</span>原文と添削コメント</div>
+
+  <h3 style="font-size:12px;color:var(--green);font-weight:700;letter-spacing:.04em;margin-bottom:6px">WRITE AN EMAIL</h3>
+  <table class="corr-table">
+    <thead><tr><th>#</th><th>原文</th><th>修正文</th><th>添削コメント</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="num-cell">1</td>
+        <td class="orig">I want to apply for the room.</td>
+        <td class="revd">I would like to apply for the room.</td>
+        <td class="cmt">would like to を使うとフォーマル度が上がり、依頼メールに適した丁寧さになります。</td>
+      </tr>
+      <tr>
+        <td class="num-cell">2</td>
+        <td class="orig">Also, I have a question about the rent.</td>
+        <td class="revd">In addition, I have a question regarding the rent.</td>
+        <td class="cmt">Also は会話寄り。ビジネスメールでは In addition, / Moreover, / Furthermore, などが標準です。regarding は about より格上のレジスター。</td>
+      </tr>
+      <tr>
+        <td class="num-cell">3</td>
+        <td class="orig">Looking forward to your reply.</td>
+        <td class="revd">I understand you may be busy, but I would appreciate hearing back at your earliest convenience.</td>
+        <td class="cmt">締めの一文に「相手の状況を慮る言葉」を足すと、4.5〜5.0 の文章になります。テンプレで終わらせず一手間を。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 style="font-size:12px;color:var(--green);font-weight:700;letter-spacing:.04em;margin-bottom:6px;margin-top:8px">ACADEMIC DISCUSSION</h3>
+  <table class="corr-table">
+    <thead><tr><th>#</th><th>原文</th><th>修正文</th><th>添削コメント</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="num-cell">1</td>
+        <td class="orig">I think technology make our life easier.</td>
+        <td class="revd">I believe that technology makes our lives easier.</td>
+        <td class="cmt">主語と動詞の一致 (makes)、可算名詞の複数形 (lives)、I think より I believe の方がアカデミックなトーンに合います。</td>
+      </tr>
+      <tr>
+        <td class="num-cell">2</td>
+        <td class="orig">For example, I use smartphone everyday.</td>
+        <td class="revd">For instance, I rely on my smartphone every day for navigation, scheduling, and communication.</td>
+        <td class="cmt">具体例は「何のために使うか」まで踏み込むと評価が上がります。冠詞 (my) の付け忘れにも注意。</td>
+      </tr>
+      <tr>
+        <td class="num-cell">3</td>
+        <td class="orig">I dont agree with Andrew.</td>
+        <td class="revd">While Andrew argues that technology isolates us, I would push back: a quick video call with my grandparents in Osaka takes seconds.</td>
+        <td class="cmt">他の学生の意見への参照は AD で必須。"While X argues that…, I would push back / counter that…" のテンプレで具体例を続けると一気に説得力が増します。'dont は don't と表記。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="section-title" style="margin-top:14px"><span class="num">4</span>次回までに意識すること</div>
+  <div class="notes-card">
+    <h3>注意ポイント</h3>
+    <ul class="notes-list">
+      <li>Email では Yours sincerely / Best regards の使い分けに注意（宛名が分かるなら sincerely）</li>
+      <li>Discussion では必ず他の学生の意見を 1 度引用してから自分の主張を展開</li>
+      <li>具体例は「いつ・どこで・どのくらい」まで踏み込む。抽象例は加点されにくい</li>
+    </ul>
+  </div>
+
+  <div class="signoff">
+    引き続きお取組みをお待ちしております。<br>
+    <b>TCK Workshop ライティング添削コース</b> / 担当：Nico
+  </div>
+
+  <div class="page-footer">
+    <div>TOEFL および TOEFL iBT は ETS の登録商標です。本教材は ETS の承認・推奨を受けたものではありません。</div>
+    <div>3 / 3</div>
+  </div>
+</div>
+
+</body>
+</html>
