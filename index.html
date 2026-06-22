@@ -64,6 +64,23 @@ body{justify-content:flex-start}
 .login-footer{border-top:1px solid var(--paper);padding:12px 28px 14px;text-align:center;font-size:.78em;color:var(--ink-500);font-family:var(--font-jp);letter-spacing:.02em}
 .forgot-link{display:block;width:100%;margin-top:14px;text-align:center;background:none;border:none;font-family:var(--font-jp);font-size:.82em;color:var(--green);text-decoration:underline;cursor:pointer;padding:4px}
 .forgot-link:hover{color:var(--green-dark)}
+.issue-panel{margin-top:14px;border:1px solid var(--paper);border-radius:12px;background:#FBF6EC;padding:0;overflow:hidden;max-height:0;opacity:0;transition:max-height .25s ease, opacity .2s ease, padding .25s ease;font-family:var(--font-jp)}
+.issue-panel.show{max-height:420px;opacity:1;padding:16px 16px 14px}
+.issue-panel h3{font-size:.88em;font-weight:700;color:var(--green-deep);margin-bottom:6px}
+.issue-panel p{font-size:.78em;color:var(--ink-500);line-height:1.7;margin-bottom:10px}
+.issue-panel p.note{font-size:.72em;background:#fff;border:1px solid var(--paper);border-radius:8px;padding:8px 10px;margin-top:8px;margin-bottom:0;color:var(--ink-900)}
+.issue-panel p.note a{color:var(--green);text-decoration:underline}
+.issue-row{display:flex;gap:8px;align-items:stretch}
+.issue-row .input-wrap{flex:1}
+.issue-row .form-input{padding:10px 12px 10px 38px;font-size:.88em}
+.issue-row .input-icon{left:12px;width:16px;height:16px}
+.issue-row .btn-issue{flex:0 0 auto;padding:0 16px;font-family:var(--font-jp);font-size:.85em;font-weight:700;color:#fff;background:var(--green);border:none;border-radius:10px;cursor:pointer;transition:background .15s;white-space:nowrap}
+.issue-row .btn-issue:hover{background:var(--green-dark)}
+.issue-row .btn-issue:disabled{background:var(--ink-200);color:var(--ink-500);cursor:not-allowed}
+.issue-result{margin-top:10px;padding:9px 12px;border-radius:8px;font-size:.8em;line-height:1.6;display:none}
+.issue-result.show{display:block}
+.issue-result.ok{background:#E8F4EE;border:1px solid #B5DAC4;color:#0E5530}
+.issue-result.ng{background:#FDF4F0;border:1px solid #E5B8A0;color:#8A3E24}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,40,23,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
 .modal-overlay.show{display:flex}
 .modal-card{background:#fff;border-radius:14px;max-width:420px;width:100%;padding:24px 24px 20px;box-shadow:0 12px 40px rgba(0,40,23,.25);font-family:var(--font-jp)}
@@ -118,39 +135,23 @@ body{justify-content:flex-start}
       <button class="btn-login" id="loginBtn" onclick="doLogin()">
         <span id="loginBtnText">ログイン</span>
       </button>
-      <button type="button" class="forgot-link" onclick="openFirstLoginModal()">初回ログインの方はこちら</button>
-      <button type="button" class="forgot-link" onclick="openResetModal()">ID／パスワードをお忘れの方はこちら</button>
-    </div>
+      <button type="button" class="forgot-link" onclick="toggleIssuePanel()" id="issueToggleBtn">初回ログインの方はこちら</button>
 
-    <div class="modal-overlay" id="firstLoginModal" onclick="if(event.target===this)closeFirstLoginModal()">
-      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="firstLoginTitle">
-        <h2 id="firstLoginTitle">初回ログインの方へ</h2>
-        <p>ライティング添削コースをご購入いただきありがとうございます。<br>お申し込み完了後、ご登録のメールアドレス宛に <strong>受講者ID</strong> と <strong>初期パスワード</strong> を 1 営業日以内にお送りしています。</p>
-        <p>1 営業日以上経ってもメールが届かない場合（迷惑メールフォルダもご確認のうえ）、下記アドレスまでお問い合わせください。</p>
-        <div class="modal-email">writing2026@tckworkshop.co.jp</div>
-        <div class="modal-actions">
-          <button type="button" class="modal-btn cancel" onclick="closeFirstLoginModal()">閉じる</button>
-          <button type="button" class="modal-btn primary" onclick="openFirstLoginMail()">お問い合わせメールを作成</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal-overlay" id="adminIssueModal" onclick="if(event.target===this)closeAdminIssueModal()">
-      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="adminIssueTitle">
-        <h2 id="adminIssueTitle">管理者ID／パスワードを発行</h2>
-        <p>TCK Workshop スタッフ専用です。<br><strong>@tckworkshop.co.jp</strong> のメールアドレスを入力してください。受講者IDと初期パスワード（または再発行パスワード）を当該メールアドレスに送信します。</p>
-        <div class="form-group" style="margin-bottom:8px">
+      <div class="issue-panel" id="issuePanel">
+        <h3>初回ログイン用パスワードの発行</h3>
+        <p>ご登録メールアドレスを入力してください。受講者IDと初回ログイン用パスワードを当該メールアドレスにお送りします。</p>
+        <div class="issue-row">
           <div class="input-wrap">
             <svg class="input-icon" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-            <input type="email" class="form-input" id="adminIssueEmail" placeholder="you@tckworkshop.co.jp" autocomplete="email">
+            <input type="email" class="form-input" id="issueEmail" placeholder="you@example.com" autocomplete="email">
           </div>
+          <button type="button" class="btn-issue" id="issueBtn" onclick="doIssuePassword()">送信</button>
         </div>
-        <p style="font-size:.78em;color:var(--ink-500);margin-bottom:0">※ @tckworkshop.co.jp 以外のメールアドレスには送信されません。</p>
-        <div class="modal-actions">
-          <button type="button" class="modal-btn cancel" onclick="closeAdminIssueModal()">キャンセル</button>
-          <button type="button" class="modal-btn primary" id="adminIssueBtn" onclick="doAdminIssue()">送信</button>
-        </div>
+        <div class="issue-result" id="issueResult"></div>
+        <p class="note">受講者の方でメールが届かない場合は、<a href="#" onclick="openFirstLoginMail();return false;">writing2026@tckworkshop.co.jp</a> までご連絡ください。</p>
       </div>
+
+      <button type="button" class="forgot-link" onclick="openResetModal()">ID／パスワードをお忘れの方はこちら</button>
     </div>
 
     <div class="modal-overlay" id="resetModal" onclick="if(event.target===this)closeResetModal()">
@@ -166,7 +167,6 @@ body{justify-content:flex-start}
     </div>
     <div class="login-tm">TOEFL および TOEFL iBT は ETS の登録商標です。本教材は ETS の承認・推奨を受けたものではありません。<br>TOEFL and TOEFL iBT are registered trademarks of ETS. This product is not endorsed or approved by ETS.</div>
   </div>
-  <button type="button" class="admin-link" onclick="openAdminIssueModal()" style="background:none;border:none;cursor:pointer">管理者の初回登録／パスワード発行 →</button>
  </div>
 </div>
 
@@ -180,34 +180,49 @@ body{justify-content:flex-start}
 
   function openResetModal(){ document.getElementById('resetModal').classList.add('show'); }
   function closeResetModal(){ document.getElementById('resetModal').classList.remove('show'); }
-  function openAdminIssueModal(){ document.getElementById('adminIssueModal').classList.add('show'); setTimeout(()=>document.getElementById('adminIssueEmail').focus(),50); }
-  function closeAdminIssueModal(){ document.getElementById('adminIssueModal').classList.remove('show'); }
-  async function doAdminIssue(){
-    const email = document.getElementById('adminIssueEmail').value.trim();
-    const btn = document.getElementById('adminIssueBtn');
-    if (!email || !email.toLowerCase().endsWith('@tckworkshop.co.jp')) {
-      alert('@tckworkshop.co.jp のメールアドレスを入力してください。');
+
+  function toggleIssuePanel(){
+    const panel = document.getElementById('issuePanel');
+    const btn   = document.getElementById('issueToggleBtn');
+    const open  = !panel.classList.contains('show');
+    panel.classList.toggle('show', open);
+    btn.textContent = open ? '初回ログインの方はこちら ▲' : '初回ログインの方はこちら';
+    if (open) setTimeout(()=>document.getElementById('issueEmail').focus(), 200);
+  }
+
+  async function doIssuePassword(){
+    const email = document.getElementById('issueEmail').value.trim();
+    const btn   = document.getElementById('issueBtn');
+    const res   = document.getElementById('issueResult');
+    res.classList.remove('show','ok','ng');
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      res.textContent = 'メールアドレスの形式を確認してください。';
+      res.classList.add('show','ng');
       return;
     }
+
     btn.disabled = true; btn.textContent = '送信中…';
     try {
       const result = await API.issuePassword(email);
       if (result.success) {
-        closeAdminIssueModal();
-        alert('パスワードを ' + email + ' に送信しました。\n受信メールの ID とパスワードでログインしてください。');
-        document.getElementById('userId').focus();
+        res.innerHTML = '✅ <strong>' + email + '</strong> 宛にIDとパスワードを送信しました。受信メールをご確認のうえ、上のフォームからログインしてください。';
+        res.classList.add('show','ok');
+        document.getElementById('issueEmail').value = '';
+        setTimeout(()=>document.getElementById('userId').focus(), 100);
       } else {
-        alert(result.message || 'パスワード発行に失敗しました。');
+        res.textContent = result.message || 'パスワード発行に失敗しました。';
+        res.classList.add('show','ng');
       }
     } catch(e) {
-      alert('通信エラー: ' + (e && e.message ? e.message : String(e)));
+      res.textContent = '通信エラー: ' + (e && e.message ? e.message : String(e));
+      res.classList.add('show','ng');
     } finally {
       btn.disabled = false; btn.textContent = '送信';
     }
   }
-  document.getElementById('adminIssueEmail').addEventListener('keydown', e => { if(e.key==='Enter') doAdminIssue(); });
-  function openFirstLoginModal(){ document.getElementById('firstLoginModal').classList.add('show'); }
-  function closeFirstLoginModal(){ document.getElementById('firstLoginModal').classList.remove('show'); }
+  document.getElementById('issueEmail').addEventListener('keydown', e => { if(e.key==='Enter') doIssuePassword(); });
+
   function openFirstLoginMail(){
     const to = 'writing2026@tckworkshop.co.jp';
     const subject = '【ライティング添削コース】初回ログイン情報のお問い合わせ';
@@ -220,7 +235,7 @@ body{justify-content:flex-start}
     const body = 'TCK Workshop ライティング添削コース 担当者様\n\nID（またはパスワード）を失念してしまったため、再発行をお願いいたします。\n\n■ お名前（フルネーム）:\n■ ご登録メールアドレス:\n■ お申込み時期（おおよそで結構です）:\n■ ご状況の補足（任意）:\n\nご対応のほど、よろしくお願いいたします。';
     location.href = 'mailto:' + encodeURIComponent(to) + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
   }
-  document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeResetModal(); closeFirstLoginModal(); } });
+  document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeResetModal(); } });
 
   async function doLogin(){
     const uid  = document.getElementById('userId').value.trim();
