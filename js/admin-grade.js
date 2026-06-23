@@ -370,7 +370,8 @@ const AdminGrade = (() => {
 ':root{--green:#007646;--green-dark:#004D2E;--green-deep:#002817;--gold:#C9A961;--cream:#FBF6EC;--paper:#F5E9D3;--ink-900:#0F1511;--ink-500:#5A6861;}' +
 '*{margin:0;padding:0;box-sizing:border-box;}' +
 'html,body{background:#e8e8e3;font-family:"Manrope","Noto Sans JP",sans-serif;color:var(--ink-900);}' +
-'@page{size:A4;margin:0;}@media print{html,body{background:#fff;}}' +
+'@page{size:A4;margin:0;}' +
+'@media print{html,body{background:#fff;}.page{margin:0!important;box-shadow:none!important;}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important;}}' +
 '.page{width:210mm;min-height:297mm;margin:24px auto;padding:18mm 18mm 22mm;background:#fff;box-shadow:0 8px 32px rgba(0,40,23,.12);position:relative;page-break-after:always;}' +
 '.page:last-child{page-break-after:avoid;}' +
 '.page-header{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--paper);margin-bottom:14px;}' +
