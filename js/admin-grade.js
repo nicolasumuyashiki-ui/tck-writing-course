@@ -366,10 +366,13 @@ const AdminGrade = (() => {
 
     return (
 '<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>添削結果</title>' +
+'<link rel="preconnect" href="https://fonts.googleapis.com">' +
+'<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' +
+'<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">' +
 '<style>' +
 ':root{--green:#007646;--green-dark:#004D2E;--green-deep:#002817;--gold:#C9A961;--cream:#FBF6EC;--paper:#F5E9D3;--ink-900:#0F1511;--ink-500:#5A6861;}' +
 '*{margin:0;padding:0;box-sizing:border-box;}' +
-'html,body{background:#e8e8e3;font-family:"Manrope","Noto Sans JP",sans-serif;color:var(--ink-900);}' +
+'html,body{background:#e8e8e3;font-family:"Manrope","Noto Sans JP","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","YuGothic","Meiryo","MS PGothic","Noto Sans CJK JP",sans-serif;color:var(--ink-900);}' +
 '@page{size:A4;margin:0;}' +
 '@media print{html,body{background:#fff;}.page{margin:0!important;box-shadow:none!important;}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important;}}' +
 '.page{width:210mm;min-height:297mm;margin:24px auto;padding:18mm 18mm 22mm;background:#fff;box-shadow:0 8px 32px rgba(0,40,23,.12);position:relative;page-break-after:always;}' +
