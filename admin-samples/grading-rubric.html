@@ -135,21 +135,21 @@ html,body{background:#e8e8e3;font-family:'Manrope','Noto Sans JP','Hiragino Sans
   </div>
 
   <div class="section-title"><span class="num">1</span>全体の計算式</div>
-  <p class="intro">3 つのタスク（Build a Sentence / Write an Email / Academic Discussion）の素点を 0〜5 に正規化したうえで平均し、TOEFL iBT® Writing セクションスコア（1〜6）に対応する 1.0〜6.0 のバンドスコア（0.5 刻み）を算出します。</p>
+  <p class="intro">3 つのタスク（Build a Sentence / Write an Email / Academic Discussion）の<b>素点（＝各タスクで実際に取れた点数）</b>を、それぞれ「0〜5 点」の共通のものさしにそろえ（これを「0〜5 換算」と呼びます）、その平均から、TOEFL iBT® Writing セクションスコア（1〜6）に対応する 1.0〜6.0 のバンドスコア（0.5 刻み）を算出します。</p>
 
   <div class="formula-box">
     <h3>計算手順</h3>
     <div class="step">
       <span class="n">1</span>
-      <div class="body"><b>Build a Sentence の換算</b><br><code>素点（0〜10）÷ 10 × 5</code>　 → 0〜5 に正規化</div>
+      <div class="body"><b>Build a Sentence の換算</b><br><code>素点（0〜10）÷ 10 × 5</code>　 → 0〜5 点にそろえます</div>
     </div>
     <div class="step">
       <span class="n">2</span>
-      <div class="body"><b>3 タスクの平均</b><br><code>(BaS換算 + Email + Discussion) ÷ 3</code>　 → 0〜5（小数を保持）</div>
+      <div class="body"><b>3 タスクの平均</b><br><code>(Build a Sentence + Write an Email + Academic Discussion の各点数) ÷ 3</code>　 → 0〜5（小数はそのまま）</div>
     </div>
     <div class="step">
       <span class="n">3</span>
-      <div class="body"><b>バンドへ変換</b><br><code>平均 + 1</code> を 0.5 刻みに四捨五入し、1.0〜6.0 にクランプ</div>
+      <div class="body"><b>バンドへ変換</b><br><code>平均 + 1</code> を 0.5 刻みで四捨五入し、1.0〜6.0 の範囲におさめます（下限 1.0／上限 6.0）</div>
     </div>
   </div>
 
@@ -202,7 +202,7 @@ html,body{background:#e8e8e3;font-family:'Manrope','Noto Sans JP','Hiragino Sans
   </div>
 
   <div class="note-box">
-    BaS は語順・文法の基礎力を客観的に測る指標です。Email / AD のような高次の評価軸とは別レイヤーの「足腰の確認」として機能します。
+    Build a Sentence は「語順・文法の基礎力」を機械的に測るパートです。Write an Email や Academic Discussion のような総合的な採点とは別に、基礎の確認として点数化しています。
   </div>
 
   <div class="page-footer">
