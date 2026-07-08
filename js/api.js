@@ -24,5 +24,12 @@ const API = {
     const url = `${API_URL}?action=issuePassword&email=${encodeURIComponent(email)}`;
     const res = await fetch(url, { redirect: 'follow' });
     return res.json();
+  },
+
+  async changePassword(id, current, newPass) {
+    const url = `${API_URL}?action=changePassword&id=${encodeURIComponent(id)}`
+      + `&current=${encodeURIComponent(current)}&newPass=${encodeURIComponent(newPass)}`;
+    const res = await fetch(url, { redirect: 'follow' });
+    return res.json();
   }
 };
