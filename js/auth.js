@@ -5,15 +5,15 @@
  */
 const Auth = {
   save(user) {
-    localStorage.setItem('toefl_user', JSON.stringify(user));
+    localStorage.setItem('tck_writing_user', JSON.stringify(user));
   },
   get() {
     try {
-      return JSON.parse(localStorage.getItem('toefl_user'));
+      return JSON.parse(localStorage.getItem('tck_writing_user'));
     } catch { return null; }
   },
   clear() {
-    localStorage.removeItem('toefl_user');
+    localStorage.removeItem('tck_writing_user');
   },
   require() {
     const u = this.get();

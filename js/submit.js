@@ -44,7 +44,7 @@ const Submit = {
   /* localStorage に保存された 1 セット分の答案を組み立てて返す */
   collectPayload: function(setNumber){
     var user = {};
-    try { user = JSON.parse(localStorage.getItem('toefl_user') || '{}') || {}; } catch(e){}
+    try { user = JSON.parse(localStorage.getItem('tck_writing_user') || '{}') || {}; } catch(e){}
     var k = 'course_set' + setNumber + '_';
     var emailMeta = {}, adMeta = {};
     try { emailMeta = JSON.parse(localStorage.getItem(k + 'email_meta') || '{}'); } catch(e){}
