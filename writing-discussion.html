@@ -365,14 +365,23 @@ function submitSet(){
       fail('⚠️ 提出機能の設定に問題があります。お手数ですが TCK Workshop までお問い合わせください。<br>答案はブラウザに保存されています。');
       return;
     }
+    if(r.offline){
+      fail('⚠️ インターネットに接続されていないようです。<br>答案はブラウザに保存済みです。通信環境を確認のうえ、もう一度お試しください。');
+      return;
+    }
     if(r.timeout || !r.success){
-      fail('⚠️ サーバーに届かなかった可能性があります（タイムアウト）。<br>答案はブラウザに保存済みです。通信環境を確認のうえ、もう一度お試しください。');
+      fail('⚠️ サーバーに届きませんでした。<br>答案はブラウザに保存済みです。通信環境を確認のうえ、もう一度お試しください。');
       return;
     }
     const ts = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
     localStorage.setItem('course_set'+SET_NUMBER+'_submitted','true');
     res.className='submit-result ok';
-    res.innerHTML='✅ Set '+SET_NUMBER+' を '+ts+' に送信しました。<br>3営業日以内に、添削とバンドスコア（1.0〜6.0）をつけて返却します。';
+    res.innerHTML='✅ Set '+SET_NUMBER+' を '+ts+' に送信しました。<br>3営業日以内に、添削とバンドスコア（1.0〜6.0）をつけて返却します。'
+      /* 応答を読めなかった場合は到達を保証できない。黙って「提出済み」に
+         見せると届いていないまま待たせることになるので、その旨を明示する。 */
+      + (r.verified === false
+          ? '<br><br>※ 送信の確認までは取れませんでした。3営業日を過ぎても返却が届かない場合は、お手数ですがご連絡ください。'
+          : '');
     btn.textContent='提出済み';
   }).catch(function(e){
     fail('⚠️ 送信中にエラーが発生しました：'+(e && e.message ? e.message : String(e))+'<br>答案はブラウザに保存済みです。再度お試しください。');

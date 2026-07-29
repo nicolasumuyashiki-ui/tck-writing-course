@@ -236,7 +236,9 @@ function render(plan){
 /* 未提出の下書き（送信が完了しなかった答案）を、作り直さずそのまま再送信する。
    course-home から Submit.collectPayload で保存済みの答案を組み立てて送る。 */
 function resubmitSet(setNo, btn){
-  if (!window.Submit || !Submit.send){
+  /* submit.js は `const Submit = {...}` 宣言のため window のプロパティにならない。
+     存在確認は window 経由ではなく typeof で行う。 */
+  if (typeof Submit === 'undefined' || !Submit.send){
     alert('提出モジュールを読み込めませんでした。ページを再読み込みしてお試しください。');
     return;
   }
@@ -245,12 +247,15 @@ function resubmitSet(setNo, btn){
   const orig = btn.textContent;
   btn.textContent = '送信中...';
   Submit.send(Submit.collectPayload(setNo)).then(function(r){
-    if (r.notConfigured || r.timeout || !r.success){
+    if (r.notConfigured || r.offline || r.timeout || !r.success){
       btn.disabled = false; btn.textContent = orig;
       alert('送信できませんでした。通信環境をご確認のうえ、もう一度お試しください。答案はブラウザに保存されています。');
       return;
     }
     localStorage.setItem('course_set'+setNo+'_submitted','true');
+    if (r.verified === false){
+      alert('送信しましたが、確認までは取れませんでした。\n3営業日を過ぎても返却が届かない場合は、お手数ですがご連絡ください。');
+    }
     render(currentPlan);   // バッジを「提出済み」に更新
   }).catch(function(){
     btn.disabled = false; btn.textContent = orig;
