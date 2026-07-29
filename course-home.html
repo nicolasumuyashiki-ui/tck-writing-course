@@ -34,7 +34,13 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
 .set-card .title{font-size:17px;font-weight:700;}
 .set-card .theme{font-size:13px;color:#5A6861;}
 .set-card .tasks{font-size:12px;color:#5A6861;margin-top:6px;}
-.set-card .badge{align-self:flex-start;margin-top:8px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;background:#e8f5ee;color:#007646;}
+.set-card .set-open{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:inherit;}
+.set-card .badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;background:#e8f5ee;color:#007646;}
+.set-card .badge.pending{background:#fdecec;color:#c0392b;}
+.set-card .set-foot{display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;}
+.set-card .resubmit-btn{font-family:inherit;font-size:12px;font-weight:700;padding:6px 14px;border-radius:999px;border:none;background:#007646;color:#fff;cursor:pointer;line-height:1;}
+.set-card .resubmit-btn:hover{background:#004D2E;}
+.set-card .resubmit-btn:disabled{opacity:.6;cursor:default;}
 .upgrade-card{margin-top:28px;background:#fff;border:1px dashed #C9A961;border-radius:12px;padding:22px 24px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
 .upgrade-card .label{font-size:11px;font-weight:800;color:#C9A961;letter-spacing:.14em;text-transform:uppercase;}
 .upgrade-card h3{font-size:17px;color:#002817;}
@@ -141,6 +147,7 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
 <script src="js/api.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/bas-sets.js"></script>
+<script src="js/submit.js"></script>
 <script>
 const STRIPE_URL_5_8  = 'https://buy.stripe.com/7sY8wP9ybbv69NO8Zn1kA1W';
 const STRIPE_URL_9_12 = 'https://buy.stripe.com/7sY8wP5hVcza1hib7v1kA1V';
@@ -154,6 +161,7 @@ Auth.showBadge('userBadge');
 const urlParams = new URLSearchParams(location.search);
 const ADMIN_PREVIEW = user.isAdmin && urlParams.get('adminPreview') === '1';
 let previewPlan = null;  // null = 通常モード（user.plan）
+let currentPlan = 4;     // 直近に描画したプラン（再送信後の再描画に使う）
 
 function normalizePlan(v){
   const n = Number(v);
@@ -181,6 +189,7 @@ function switchPreviewPlan(p){
 }
 
 function render(plan){
+  currentPlan = plan;
   renderAdminPreviewBar(plan);
   const grid = document.getElementById('setGrid');
   grid.innerHTML = '';
@@ -189,21 +198,64 @@ function render(plan){
   const n = Math.min(plan, BAS_SETS.length);
   for (let i = 1; i <= n; i++){
     const theme = (BAS_SETS[i-1] && BAS_SETS[i-1].theme) ? BAS_SETS[i-1].theme : '';
-    /* 「提出済み」バッジは GAS 送信完了時の _submitted フラグで判定する。
-       _ad_response は旧データの後方互換のためフォールバックとして使う。 */
-    const submitted = localStorage.getItem('course_set'+i+'_submitted') === 'true'
-                   || !!localStorage.getItem('course_set'+i+'_ad_response');
-    const a = document.createElement('a');
-    a.className = 'set-card';
-    a.href = 'writing-sentence.html?set='+i;
-    a.innerHTML = '<span class="num">Set '+i+'</span>'+
-      '<span class="title">Practice Set '+i+'</span>'+
-      '<span class="theme">'+theme+'</span>'+
-      '<span class="tasks">Build a Sentence → Email → Academic Discussion</span>'+
-      (submitted ? '<span class="badge">提出済み</span>' : '');
-    grid.appendChild(a);
+    /* 「提出済み」は GAS への送信完了を示す _submitted フラグだけで判定する。
+       Academic Discussion を書いた時点で ad_response が保存されるが、それ自体は
+       「提出」ではない。未送信のまま ad_response だけある状態を「提出済み」と
+       表示すると、生徒は提出したつもりなのにメールが届かない取りこぼしになる。
+       そのため未送信の下書きは「未提出（下書きあり）」と区別し、答案を作り直さず
+       その場で送り直せる「今すぐ提出」ボタンを出す。 */
+    const submitted = localStorage.getItem('course_set'+i+'_submitted') === 'true';
+    const hasDraft  = !submitted && !!localStorage.getItem('course_set'+i+'_ad_response');
+    let foot = '';
+    if (submitted){
+      foot = '<div class="set-foot"><span class="badge">提出済み</span></div>';
+    } else if (hasDraft){
+      foot = '<div class="set-foot"><span class="badge pending">未提出（下書きあり）</span>'
+           + '<button type="button" class="resubmit-btn" data-set="'+i+'">今すぐ提出する</button></div>';
+    }
+    const card = document.createElement('div');
+    card.className = 'set-card';
+    card.innerHTML =
+      '<a class="set-open" href="writing-sentence.html?set='+i+'">'+
+        '<span class="num">Set '+i+'</span>'+
+        '<span class="title">Practice Set '+i+'</span>'+
+        '<span class="theme">'+theme+'</span>'+
+        '<span class="tasks">Build a Sentence → Email → Academic Discussion</span>'+
+      '</a>' + foot;
+    grid.appendChild(card);
   }
+  grid.onclick = function(ev){
+    const btn = ev.target.closest('.resubmit-btn');
+    if (!btn || !grid.contains(btn)) return;
+    ev.preventDefault();
+    resubmitSet(Number(btn.getAttribute('data-set')), btn);
+  };
   renderUpgrade(plan);
+}
+
+/* 未提出の下書き（送信が完了しなかった答案）を、作り直さずそのまま再送信する。
+   course-home から Submit.collectPayload で保存済みの答案を組み立てて送る。 */
+function resubmitSet(setNo, btn){
+  if (!window.Submit || !Submit.send){
+    alert('提出モジュールを読み込めませんでした。ページを再読み込みしてお試しください。');
+    return;
+  }
+  if (btn.disabled) return;
+  btn.disabled = true;
+  const orig = btn.textContent;
+  btn.textContent = '送信中...';
+  Submit.send(Submit.collectPayload(setNo)).then(function(r){
+    if (r.notConfigured || r.timeout || !r.success){
+      btn.disabled = false; btn.textContent = orig;
+      alert('送信できませんでした。通信環境をご確認のうえ、もう一度お試しください。答案はブラウザに保存されています。');
+      return;
+    }
+    localStorage.setItem('course_set'+setNo+'_submitted','true');
+    render(currentPlan);   // バッジを「提出済み」に更新
+  }).catch(function(){
+    btn.disabled = false; btn.textContent = orig;
+    alert('送信中にエラーが発生しました。もう一度お試しください。');
+  });
 }
 
 function renderUpgrade(plan){
