@@ -34,6 +34,7 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
 .set-card .title{font-size:17px;font-weight:700;}
 .set-card .theme{font-size:13px;color:#5A6861;}
 .set-card .tasks{font-size:12px;color:#5A6861;margin-top:6px;}
+.auto-sent-notice{margin-bottom:16px;padding:12px 16px;border-radius:10px;background:#e8f5ee;border:1px solid #007646;color:#00502f;font-size:13px;line-height:1.7;}
 .set-card .set-open{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:inherit;}
 .set-card .badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;background:#e8f5ee;color:#007646;}
 .set-card .badge.pending{background:#fdecec;color:#c0392b;}
@@ -287,12 +288,60 @@ function renderUpgrade(plan){
   slot.appendChild(card);
 }
 
+/* 送信されないまま端末に残っている答案を、ページを開いた時点で自動的に提出する。
+   「提出済み」と表示されていたのに講師へ届いていなかった答案の救済措置。
+   答案は受講者の端末にしか存在しないため、こちらから回収する手段がこれしかない。 */
+function autoSendPendingDrafts(plan){
+  if (ADMIN_PREVIEW) return;
+  if (typeof Submit === 'undefined' || !Submit.send) return;
+  const pending = [];
+  const n = Math.min(plan, BAS_SETS.length);
+  for (let i = 1; i <= n; i++){
+    if (localStorage.getItem('course_set'+i+'_submitted') === 'true') continue;
+    if (!localStorage.getItem('course_set'+i+'_ad_response')) continue;
+    pending.push(i);
+  }
+  if (!pending.length) return;
+
+  const sent = [];
+  /* 同時に送るとサーバー側で取りこぼす可能性があるため 1 件ずつ順番に送る */
+  (function next(idx){
+    if (idx >= pending.length){
+      if (sent.length){ showAutoSentNotice(sent); render(currentPlan); }
+      return;
+    }
+    const setNo = pending[idx];
+    Submit.send(Submit.collectPayload(setNo)).then(function(r){
+      if (r && r.success){
+        localStorage.setItem('course_set'+setNo+'_submitted','true');
+        sent.push(setNo);
+      }
+    }).catch(function(){ /* 失敗時は未提出のまま残し、ボタンから再送信できる */ })
+      .then(function(){ next(idx + 1); });
+  })(0);
+}
+
+function showAutoSentNotice(setNos){
+  const grid = document.getElementById('setGrid');
+  let box = document.getElementById('autoSentNotice');
+  if (!box){
+    box = document.createElement('div');
+    box.id = 'autoSentNotice';
+    box.className = 'auto-sent-notice';
+    grid.parentNode.insertBefore(box, grid);
+  }
+  box.textContent = '未送信のまま残っていた Set ' + setNos.join('・') +
+    ' の答案を提出しました。3営業日以内に添削してお返しします。';
+}
+
 /* 初期描画：admin preview なら 4 から、通常は localStorage の plan で描画 */
 if (ADMIN_PREVIEW) {
   previewPlan = 4;
   render(4);
 } else {
-  render(normalizePlan(user.plan));
+  const __plan = normalizePlan(user.plan);
+  render(__plan);
+  autoSendPendingDrafts(__plan);
 }
 
 /* 同期：サーバーの最新 plan を取りに行き、変わっていたら再描画
