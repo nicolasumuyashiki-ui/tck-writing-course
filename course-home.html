@@ -34,6 +34,7 @@ body{font-family:'Manrope','Zen Kaku Gothic New','Noto Sans JP',system-ui,sans-s
 .set-card .title{font-size:17px;font-weight:700;}
 .set-card .theme{font-size:13px;color:#5A6861;}
 .set-card .tasks{font-size:12px;color:#5A6861;margin-top:6px;}
+.auto-sent-notice{margin-bottom:16px;padding:12px 16px;border-radius:10px;background:#e8f5ee;border:1px solid #007646;color:#00502f;font-size:13px;line-height:1.7;}
 .set-card .set-open{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:inherit;}
 .set-card .badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;background:#e8f5ee;color:#007646;}
 .set-card .badge.pending{background:#fdecec;color:#c0392b;}
@@ -236,7 +237,9 @@ function render(plan){
 /* 未提出の下書き（送信が完了しなかった答案）を、作り直さずそのまま再送信する。
    course-home から Submit.collectPayload で保存済みの答案を組み立てて送る。 */
 function resubmitSet(setNo, btn){
-  if (!window.Submit || !Submit.send){
+  /* submit.js は `const Submit = {...}` 宣言のため window のプロパティにならない。
+     存在確認は window 経由ではなく typeof で行う。 */
+  if (typeof Submit === 'undefined' || !Submit.send){
     alert('提出モジュールを読み込めませんでした。ページを再読み込みしてお試しください。');
     return;
   }
@@ -245,12 +248,15 @@ function resubmitSet(setNo, btn){
   const orig = btn.textContent;
   btn.textContent = '送信中...';
   Submit.send(Submit.collectPayload(setNo)).then(function(r){
-    if (r.notConfigured || r.timeout || !r.success){
+    if (r.notConfigured || r.offline || r.timeout || !r.success){
       btn.disabled = false; btn.textContent = orig;
       alert('送信できませんでした。通信環境をご確認のうえ、もう一度お試しください。答案はブラウザに保存されています。');
       return;
     }
     localStorage.setItem('course_set'+setNo+'_submitted','true');
+    if (r.verified === false){
+      alert('送信しましたが、確認までは取れませんでした。\n3営業日を過ぎても返却が届かない場合は、お手数ですがご連絡ください。');
+    }
     render(currentPlan);   // バッジを「提出済み」に更新
   }).catch(function(){
     btn.disabled = false; btn.textContent = orig;
@@ -282,12 +288,60 @@ function renderUpgrade(plan){
   slot.appendChild(card);
 }
 
+/* 送信されないまま端末に残っている答案を、ページを開いた時点で自動的に提出する。
+   「提出済み」と表示されていたのに講師へ届いていなかった答案の救済措置。
+   答案は受講者の端末にしか存在しないため、こちらから回収する手段がこれしかない。 */
+function autoSendPendingDrafts(plan){
+  if (ADMIN_PREVIEW) return;
+  if (typeof Submit === 'undefined' || !Submit.send) return;
+  const pending = [];
+  const n = Math.min(plan, BAS_SETS.length);
+  for (let i = 1; i <= n; i++){
+    if (localStorage.getItem('course_set'+i+'_submitted') === 'true') continue;
+    if (!localStorage.getItem('course_set'+i+'_ad_response')) continue;
+    pending.push(i);
+  }
+  if (!pending.length) return;
+
+  const sent = [];
+  /* 同時に送るとサーバー側で取りこぼす可能性があるため 1 件ずつ順番に送る */
+  (function next(idx){
+    if (idx >= pending.length){
+      if (sent.length){ showAutoSentNotice(sent); render(currentPlan); }
+      return;
+    }
+    const setNo = pending[idx];
+    Submit.send(Submit.collectPayload(setNo)).then(function(r){
+      if (r && r.success){
+        localStorage.setItem('course_set'+setNo+'_submitted','true');
+        sent.push(setNo);
+      }
+    }).catch(function(){ /* 失敗時は未提出のまま残し、ボタンから再送信できる */ })
+      .then(function(){ next(idx + 1); });
+  })(0);
+}
+
+function showAutoSentNotice(setNos){
+  const grid = document.getElementById('setGrid');
+  let box = document.getElementById('autoSentNotice');
+  if (!box){
+    box = document.createElement('div');
+    box.id = 'autoSentNotice';
+    box.className = 'auto-sent-notice';
+    grid.parentNode.insertBefore(box, grid);
+  }
+  box.textContent = '未送信のまま残っていた Set ' + setNos.join('・') +
+    ' の答案を提出しました。3営業日以内に添削してお返しします。';
+}
+
 /* 初期描画：admin preview なら 4 から、通常は localStorage の plan で描画 */
 if (ADMIN_PREVIEW) {
   previewPlan = 4;
   render(4);
 } else {
-  render(normalizePlan(user.plan));
+  const __plan = normalizePlan(user.plan);
+  render(__plan);
+  autoSendPendingDrafts(__plan);
 }
 
 /* 同期：サーバーの最新 plan を取りに行き、変わっていたら再描画
