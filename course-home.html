@@ -254,9 +254,6 @@ function resubmitSet(setNo, btn){
       return;
     }
     localStorage.setItem('course_set'+setNo+'_submitted','true');
-    if (r.verified === false){
-      alert('送信しましたが、確認までは取れませんでした。\n3営業日を過ぎても返却が届かない場合は、お手数ですがご連絡ください。');
-    }
     render(currentPlan);   // バッジを「提出済み」に更新
   }).catch(function(){
     btn.disabled = false; btn.textContent = orig;
@@ -299,6 +296,9 @@ function autoSendPendingDrafts(plan){
   for (let i = 1; i <= n; i++){
     if (localStorage.getItem('course_set'+i+'_submitted') === 'true') continue;
     if (!localStorage.getItem('course_set'+i+'_ad_response')) continue;
+    /* 送信中に再読み込みされたり別タブで開かれたりすると、提出済みフラグが立つ前に
+       もう一度送ってしまい、同じ答案が重複して届く。直前に送信を始めていたら見送る。 */
+    if (Date.now() - Number(localStorage.getItem('course_set'+i+'_sending') || 0) < 120000) continue;
     pending.push(i);
   }
   if (!pending.length) return;
@@ -311,12 +311,17 @@ function autoSendPendingDrafts(plan){
       return;
     }
     const setNo = pending[idx];
+    localStorage.setItem('course_set'+setNo+'_sending', String(Date.now()));
     Submit.send(Submit.collectPayload(setNo)).then(function(r){
       if (r && r.success){
         localStorage.setItem('course_set'+setNo+'_submitted','true');
         sent.push(setNo);
       }
-    }).catch(function(){ /* 失敗時は未提出のまま残し、ボタンから再送信できる */ })
+      /* 失敗しても目印は消さない。送信中にページを離れると fetch が中断されて
+         失敗として扱われるが、その時点で答案は既に届いていることが多く、
+         ここで消すと開き直すたびに同じ答案を送ってしまう。
+         目印は時間経過で解除され、それまでは「今すぐ提出する」で送り直せる。 */
+    }).catch(function(){ /* 同上。目印は残したまま次へ進む */ })
       .then(function(){ next(idx + 1); });
   })(0);
 }
