@@ -191,6 +191,7 @@ p.page-sub{font-size:13px;color:#5A6861;margin-bottom:22px;max-width:680px;margi
       <ol>
         <li>受講者から自動送信されてきた <strong>提出メール（PDF 添付）</strong> を開き、内容を確認します。</li>
         <li>下の <strong>「受講者情報」</strong> セクションに名前・メールアドレス・Set番号を入力します。CC には自分（添削担当）のアドレスを入れておくと記録になります。</li>
+        <li><strong>「添削言語」</strong> で日本語か英語を選びます。選んだ言語に合わせて、Claude に渡すプロンプトが自動で切り替わります。</li>
         <li><strong>Build a Sentence</strong> は PDF 内の「自動採点」結果をそのまま「正答数」欄に入力します（0〜10）。</li>
         <li><strong>Write an Email</strong> セクションで：
           <ol style="margin-top:6px">
@@ -280,6 +281,15 @@ p.page-sub{font-size:13px;color:#5A6861;margin-bottom:22px;max-width:680px;margi
         <div class="field">
           <label for="stuSubmitDate">提出日（任意）</label>
           <input type="text" id="stuSubmitDate" placeholder="例: 2026/06/15">
+        </div>
+      </div>
+      <div class="field-grid" style="margin-top:14px">
+        <div class="field">
+          <label for="feedbackLang">添削言語（総評・コメント・注意ポイントの言語）</label>
+          <select id="feedbackLang">
+            <option value="ja">日本語</option>
+            <option value="en">English（英語）</option>
+          </select>
         </div>
       </div>
     </div>
