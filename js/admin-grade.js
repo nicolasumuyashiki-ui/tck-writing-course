@@ -91,6 +91,99 @@ const AD_PROMPT_TEMPLATE =
 【受講者の答案（教授の問い・他の学生の投稿も含めて貼り付け）】
 __ANSWER__`;
 
+const EMAIL_PROMPT_TEMPLATE_EN =
+`You are a dedicated rater for the TOEFL iBT Writing "Write an Email" task (the first Writing task, separate from Writing for an Academic Discussion). Score the email submitted by the student __NAME__ (Set __SET__) strictly and accurately, based on the official ETS rubric (0–5).
+
+[Evaluation criteria]
+- Task completion (covers all 3 required points, no more and no less)
+- Whether the register (opening / closing / overall tone) is appropriate for the recipient
+- Accuracy and range of grammar and vocabulary (including naturalness from an ESL perspective)
+- Organization (paragraphing / logical flow / transitions)
+- Completeness as an email (whether a subject line, greeting, and signature are present or appropriately omitted)
+
+[Output rules]
+- Always output in the JSON format below, inside a code block.
+- Write ALL feedback text ("summary", "comment", "notes") in English. Use clear, plain English that an intermediate learner can understand.
+- "score" is a number from 0.0 to 5.0 in steps of 0.5.
+- "summary" is overall feedback addressed to the student (about 60–110 words, polite tone). Include 1–2 strengths and 1–2 areas for improvement.
+- "corrections" contains up to 8 passages from the original text to fix, generally one sentence each.
+  - "original": the student's original text, exactly as written
+  - "revised":  a natural, corrected English version
+  - "comment":  1–2 lines in English explaining why it was changed / the learning point
+- "notes" contains 1–2 "points to keep in mind for next time" (focus only on learning points specific to this task = Email).
+  - Each item is one short English sentence (about 15–30 words, polite, avoid blunt commands).
+
+\`\`\`json
+{
+  "score": 4.0,
+  "summary": "Overall feedback here (addressed to the student, polite tone)",
+  "corrections": [
+    {
+      "original": "I want to apply for the room.",
+      "revised":  "I would like to apply for the room.",
+      "comment":  "Using \\"would like to\\" makes the request more formal and polite, which suits a request email."
+    }
+  ],
+  "notes": [
+    "In emails, try to choose between \\"Yours sincerely\\" and \\"Best regards\\" based on how formal your relationship with the recipient is.",
+    "Starting sentences with \\"Also\\" or \\"And\\" sounds conversational, so consider using written transitions such as \\"In addition\\" or \\"Furthermore\\"."
+  ]
+}
+\`\`\`
+
+[Student's answer]
+__ANSWER__`;
+
+const AD_PROMPT_TEMPLATE_EN =
+`You are a dedicated rater for the TOEFL iBT Writing "Writing for an Academic Discussion" task (the second Writing task). Score the post submitted by the student __NAME__ (Set __SET__) strictly and accurately, based on the official ETS rubric (0–5).
+
+[Evaluation criteria]
+- Whether the post directly answers the professor's question (clear position)
+- Whether it mentions or responds to the opinions of the other 2 students
+- Quality of the examples supporting the claim (specificity and relevance)
+- Range and accuracy of grammar and vocabulary (academic register)
+- Whether it is sufficiently long (100+ words) and complete as a contribution to the discussion
+
+[Output rules]
+- Always output in the JSON format below, inside a code block.
+- Write ALL feedback text ("summary", "comment", "notes") in English. Use clear, plain English that an intermediate learner can understand.
+- "score" is a number from 0.0 to 5.0 in steps of 0.5.
+- "summary" is overall feedback addressed to the student (about 60–110 words, polite tone).
+- "corrections" contains up to 8 items: original → revised → comment (in English).
+- "notes" contains 1–2 "points to keep in mind for next time" (focus only on learning points specific to this task = Academic Discussion).
+  - Each item is one short English sentence (about 15–30 words, polite, avoid blunt commands).
+
+\`\`\`json
+{
+  "score": 3.5,
+  "summary": "Overall feedback here (addressed to the student, polite tone)",
+  "corrections": [
+    {
+      "original": "I agree with Andrew opinion.",
+      "revised":  "I agree with Andrew's opinion.",
+      "comment":  "The possessive 's is needed here. Adding exactly what you agree with makes your post more convincing."
+    }
+  ],
+  "notes": [
+    "In Academic Discussion, try to refer to another student's opinion once before developing your own argument.",
+    "Your examples will be more convincing if you include details such as when, where, and how much."
+  ]
+}
+\`\`\`
+
+[Student's answer (paste it together with the professor's question and the other students' posts)]
+__ANSWER__`;
+
+const PROMPT_TEMPLATES = {
+  ja: { email: EMAIL_PROMPT_TEMPLATE,    ad: AD_PROMPT_TEMPLATE },
+  en: { email: EMAIL_PROMPT_TEMPLATE_EN, ad: AD_PROMPT_TEMPLATE_EN }
+};
+const ANSWER_PLACEHOLDER = {
+  ja: '（ここに受講者の答案を貼り付け）',
+  en: '(Paste the student\'s answer here)'
+};
+const LANG_STORAGE_KEY = 'tckAdminFeedbackLang';
+
 const AdminGrade = (() => {
   /* ---------- state ---------- */
   const state = {
@@ -126,11 +219,18 @@ const AdminGrade = (() => {
   const buildPrompt = type => {
     const name = ($('stuName').value || '＿＿＿').trim();
     const set  = ($('stuSetNo').value || '＿').trim();
-    const tpl  = type === 'email' ? EMAIL_PROMPT_TEMPLATE : AD_PROMPT_TEMPLATE;
+    const lang = getLang();
+    const tpl  = PROMPT_TEMPLATES[lang][type];
     return tpl
       .replace(/__NAME__/g, name)
       .replace(/__SET__/g, set)
-      .replace(/__ANSWER__/g, '（ここに受講者の答案を貼り付け）');
+      .replace(/__ANSWER__/g, ANSWER_PLACEHOLDER[lang]);
+  };
+  const getLang = () => ($('feedbackLang') && $('feedbackLang').value === 'en') ? 'en' : 'ja';
+  const onLangChange = () => {
+    try { localStorage.setItem(LANG_STORAGE_KEY, getLang()); } catch (e) {}
+    refreshPrompts();
+    showToast(getLang() === 'en' ? '添削言語を英語に切り替えました' : '添削言語を日本語に切り替えました');
   };
   const refreshPrompts = () => {
     $('emailPrompt').textContent = buildPrompt('email');
@@ -595,6 +695,14 @@ const AdminGrade = (() => {
   const init = () => {
     populateScoreSelect('emailScore');
     populateScoreSelect('adScore');
+
+    // restore the last-used feedback language (per browser)
+    try {
+      const saved = localStorage.getItem(LANG_STORAGE_KEY);
+      if (saved === 'ja' || saved === 'en') $('feedbackLang').value = saved;
+    } catch (e) {}
+    $('feedbackLang').addEventListener('change', onLangChange);
+
     refreshPrompts();
 
     // refresh prompts when name or set changes
